@@ -88,7 +88,7 @@ def avoid_wall():
 	elif regions['front'] > d and regions['fleft'] < d and regions['fright'] < d:
 		wall_state = 'fleft and fright'
 		move(0.3,-0.9)
-	print '%s' % (wall_state)
+	print(wall_state)
 
 
 
@@ -144,9 +144,11 @@ def goto(dest_x, dest_y):
 
         theta_goal = np.arctan((dest_y - pose[1])/(dest_x - pose[0]))
         if theta_goal>0:
-        	theta_goal+=0.04
+            theta_goal+=0.04
+        
         elif theta_goal<0:
-        	theta_goal-=0.04
+            theta_goal-=0.04
+
         bot_theta = pose[2]
 
         theta_error = round(bot_theta - theta_goal, 2)
