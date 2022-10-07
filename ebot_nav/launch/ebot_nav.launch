@@ -8,6 +8,8 @@
 	
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find ebot_nav)/config/my.rviz" output = "screen"/>
 
-	<node name="ebot_waypoints" pkg="ebot_nav" type="ebot_waypoint_nav.py"    />
+	<!--node name="ebot_waypoints" pkg="ebot_nav" type="ebot_waypoint_nav.py"    />-->
+
+
 
 </launch>
