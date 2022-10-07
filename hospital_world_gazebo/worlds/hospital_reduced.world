@@ -5062,6 +5062,7 @@
       <model name='aws_robomaker_hospital_floor_01_walls_1'>
         <pose>0.051994 0.082857 -0.159763 -1.57244 0.008667 0.002876</pose>
         <scale>1 1 1</scale>
+        <static>1</static>
         <link name='aws_robomaker_hospital_floor_01_walls::link'>
           <pose>0.038291 0.08284 -0.145861 -1.57244 0.008667 0.002876</pose>
           <velocity>0 0 0 0 -0 0</velocity>

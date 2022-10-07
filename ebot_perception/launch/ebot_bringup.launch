@@ -1,13 +1,13 @@
 <launch>
 
-<include file="$(find ebot_perception)/launch/planning_context.launch" >
+<include file="$(find ur5_config)/launch/planning_context.launch" >
     <arg name="load_robot_description" value="true" />
 </include>
 
-<node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+<!-- <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="50.0" />
     <param name="tf_prefix" type="string" value="" />
-</node>
+</node> -->
     
 <rosparam file="$(find ebot_perception)/config/joint_state_controller.yaml" command="load"/>
     
@@ -18,20 +18,20 @@
 <node name="arm_controller_spawner" pkg="controller_manager" type="controller_manager" 
 args="spawn arm_controller gripper_controller" respawn="false" />
 
-<!-- <include file="$(find ebot_perception)/launch/planning_context.launch" >
+<!-- <include file="$(find ur5_config)/launch/planning_context.launch" >
     <arg name="load_robot_description" value="true" />
 </include> -->
   
-<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+<!-- <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
     <param name="/use_gui" value="false"/>
     <rosparam param="/source_list">[/joint_states]</rosparam>
-</node>
+</node> -->
   
-<include file="$(find ebot_perception)/launch/move_group.launch">
+<include file="$(find ur5_config)/launch/move_group.launch">
     <arg name="publish_monitored_planning_scene" value="true" />
  </include>
   
-<include file="$(find ebot_perception)/launch/moveit_rviz.launch">
+<include file="$(find ur5_config)/launch/moveit_rviz.launch">
   <arg name="rviz_config" value="$(find ebot_handler)/config/task5.rviz"/>
   <arg name="debug" value="false"/>
 </include>

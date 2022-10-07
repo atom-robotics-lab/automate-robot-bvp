@@ -1,5 +1,5 @@
 <launch>
-  <!-- <include file="$(find ebot_description)/launch/ebot_spawn.launch" /> -->
+  <include file="$(find ebot_description)/launch/ebot_spawn.launch" />
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find aws_robomaker_hospital_world)/worlds/hospital_reduced.world"/>
