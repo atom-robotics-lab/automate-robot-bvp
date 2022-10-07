@@ -2,10 +2,6 @@
 
 import rospy
 import sys
-import copy
-import time
-import math
-import Utils
 
 import moveit_commander
 import moveit_msgs.msg
@@ -62,10 +58,11 @@ class Ur5Moveit:
     def go_to_predefined_pose(self, arg_pose_name):
         self._group.set_named_target(arg_pose_name)
         plan = self._group.plan()
-        goal = moveit_msgs.msg.ExecuteTrajectoryGoal()
-        goal.trajectory = plan
-        self._exectute_trajectory_client.send_goal(goal)
-        self._exectute_trajectory_client.wait_for_result()
+        # goal = moveit_msgs.msg.ExecuteTrajectoryGoal()
+        # goal.trajectory = plan
+        # self._exectute_trajectory_client.send_goal(goal)
+        # self._exectute_trajectory_client.wait_for_result()
+        self._group.go(wait=True)
 
 
 class gripper:

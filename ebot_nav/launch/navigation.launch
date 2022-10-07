@@ -5,7 +5,7 @@
 	<include file="$(find ebot_nav)/launch/amcl.launch" />
 	<include file="$(find ebot_nav)/launch/move_base.launch" />
 	
-	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find ebot_nav)/rviz/ebot_nav.rviz" output = "screen"/>
+	<!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ebot_nav)/rviz/ebot_nav.rviz" output = "screen"/> -->
 
 	<rosparam file="$(find ebot_nav)/config/room_waypoints.yaml" command="load"/>
 

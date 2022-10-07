@@ -17,11 +17,11 @@ class NavActionClient:
     def __init__(self):
         # create navigation action client
         self.action_client = actionlib.SimpleActionClient('Nav_action_server', NavAction)
-        #rospy.loginfo("ebot_navigation: Waiting for Navigation server ...")
+        rospy.loginfo("ebot_navigation: Waiting for Navigation server ...")
 
         # wait for navigation action server to come online
         self.action_client.wait_for_server()
-        #rospy.loginfo("ebot_navigation: Navigation server is online!")
+        rospy.loginfo("ebot_navigation: Navigation server is online!")
 
     def go_to(self, room_name):
         '''A function to send room name as goal to navigation action server
@@ -31,7 +31,7 @@ class NavActionClient:
         self.goal = NavGoal()
         self.goal.room_name = room_name 
         self.action_client.send_goal(self.goal, feedback_cb = self.feedback_cb)
-        #rospy.loginfo("{} (goal) sent for Navigation!".format(room_name))
+        rospy.loginfo("{} (goal) sent for Navigation!".format(room_name))
 
     def Nav_result(self):
         '''A function to wait for result from navigation action server and return it after receiving
@@ -42,14 +42,14 @@ class NavActionClient:
         self.action_client.wait_for_result()
 
         if self.action_client.get_result():
-            #rospy.loginfo("Result Recieved:")
+            rospy.loginfo("Result Recieved:")
             self.result = self.action_client.get_result()
-            #rospy.loginfo(self.result)
+            rospy.loginfo(self.result)
             if self.result.Nav_success:
-                #rospy.loginfo("[RESULT]: {} REACHED".format(self.result.room_reached.upper()))
+                rospy.loginfo("[RESULT]: {} REACHED".format(self.result.room_reached.upper()))
                 return True
             else:
-                #rospy.logerr("[Result]: error goal abandoned")
+                rospy.logerr("[Result]: error goal abandoned")
                 return False
         
 
@@ -58,13 +58,60 @@ class NavActionClient:
         rospy.loginfo("Theta Error : {}".format(feedback.theta_error)) 
 
 
+class Ur5ManipulationClient:
+    '''A class to create and manage Arm Manipulation service client'''
+
+    def __init__(self):
+        rospy.loginfo('Waiting for Arm Controller Service...')
+        rospy.wait_for_service('arm_controller_service')
+        rospy.loginfo('Arm Controller Service Available')
+
+        # initialize arm manipulation service client
+        self.service_client = rospy.ServiceProxy('arm_controller_service',arm_go_to_pose)
+
+        # create empty request object
+        self.req = arm_go_to_poseRequest()
+    
+    def go_to_pose(self, pose):
+        '''A function to send request to go to a predefined pose to the arm manipulaiton service
+            parameter: pose: String: name of the predefined pose
+            returns: nothing'''
+
+        self.req.predefined_pose_name = pose
+        self.resp = self.service_client(self.req)
+        if self.resp == True:
+            rospy.loginfo('arm reached {}'.format(pose))
+
+    def pick_object(self, ob_pose):
+        '''A function to send pick request to arm manipulation service
+            parameters: ob_pose: object data(name and pose) as returned from perception action server: PerceptionResult
+            returns: nothing'''
+
+        # set request pose name as pick
+        self.req.predefined_pose_name = 'pick'
+
+        # set request object name as name of the object
+        self.req.object_name = ob_pose.name
+
+        # define object pose in service request
+        self.req.position.x = ob_pose.pose.pose.position.x
+        self.req.position.y = ob_pose.pose.pose.position.y
+        self.req.position.z = ob_pose.pose.pose.position.z
+        self.req.orientation.x = ob_pose.pose.pose.orientation.x
+        self.req.orientation.y = ob_pose.pose.pose.orientation.y 
+        self.req.orientation.z = ob_pose.pose.pose.orientation.z
+        self.req.orientation.w = ob_pose.pose.pose.orientation.w
+
+        self.resp = self.service_client(self.req)
+        if self.resp == True:
+            rospy.loginfo('{} PICKED'.format(ob_pose.name.upper()))
 
 
 class TaskManager:
     '''A class that manages executes the task given to ebot by implementing a control loop and 
         communicating with the navigation and perception action server'''
 
-    def __init__(self, nav_client):
+    def __init__(self, nav_client, manipulation_client):
 
         # initialize subscriber for task_message topic to receive tasks for the ebot
         rospy.Subscriber("/task", Task, self.task_data_cb)
@@ -74,7 +121,7 @@ class TaskManager:
 
         self.nav_client = nav_client
         #self.perception_client = perception_client
-        #self.arm_pose = manipulation_client
+        self.arm_pose = manipulation_client
 
         self.ebot_task = []
 
@@ -116,7 +163,7 @@ class TaskManager:
             rospy.loginfo("ebot_manipulation: Arm going to TRAVEL POSE")
 
             # go to travel pose before going to pick room
-            #self.arm_pose.go_to_pose('travel_pose')
+            self.arm_pose.go_to_pose('travel_pose')
 
             # go to pick up room and wait for result
             self.nav_client.go_to(self.ebot_task.pick_room)
@@ -130,7 +177,7 @@ class TaskManager:
 
                 rospy.loginfo("ebot_manipulation: Arm going to DETECT POSE")
                 # go to detect pose before starting perception
-                #self.arm_pose.go_to_pose('detect_pose_left')
+                self.arm_pose.go_to_pose('detect_pose')
 
                 # send the object to be picked to perception action client and wait for result from perception action server
                 #self.perception_client.object_recognition(self.ebot_task.ob_name)
@@ -173,10 +220,11 @@ def main():
 
     # initializing ebot_navigation action client
     ebot_navigation = NavActionClient()
+
+    # send arm to travel pose befor moving
+    ebot_manipulation = Ur5ManipulationClient()
     
-    
-    
-    ebot_task_manager = TaskManager(ebot_navigation)
+    ebot_task_manager = TaskManager(ebot_navigation, ebot_manipulation)
     
     rospy.spin()
 

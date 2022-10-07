@@ -32,8 +32,8 @@
     </group_state>
     <group_state name="travel_pose" group="ur5_arm">
         <joint name="elbow_joint" value="-2.5514"/>
-        <joint name="shoulder_lift_joint" value="-0.4513"/>
-        <joint name="shoulder_pan_joint" value="-3.077"/>
+        <joint name="shoulder_lift_joint" value="-1.0067"/>
+        <joint name="shoulder_pan_joint" value="-3.0201"/>
         <joint name="wrist_1_joint" value="-0.1041"/>
         <joint name="wrist_2_joint" value="1.5621"/>
         <joint name="wrist_3_joint" value="3.0895"/>
