@@ -1,0 +1,9 @@
+string predefined_pose_name
+string object_name
+# A representation of pose in free space, composed of position and orientation. 
+Point position
+Quaternion orientation
+
+---
+
+bool sucess

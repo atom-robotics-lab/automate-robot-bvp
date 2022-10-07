@@ -1,0 +1,20 @@
+task-checkpoints:
+        checkpoint-1:
+                pick_room: Pantry1
+                ob_name: COKE
+                drop_room: Meeting-Room-drop
+
+        checkpoint-2:
+                pick_room: Meeting-Room-pick
+                ob_name: GLUE
+                drop_room: Research-Lab
+
+        checkpoint-3:
+                pick_room: Store-Room1
+                ob_name: FPGA-BOARD
+                drop_room: Conference-Room
+
+        checkpoint-4:
+                pick_room: Start-Position
+                ob_name: "" 
+                drop_room: "" 

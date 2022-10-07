@@ -1,0 +1,10 @@
+string ob_name
+
+---
+
+bool ob_success
+object_msgs/ObjectPose ob_data
+
+---
+
+string ob_detected

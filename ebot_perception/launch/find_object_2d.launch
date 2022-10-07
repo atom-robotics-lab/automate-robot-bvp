@@ -1,0 +1,9 @@
+<launch>
+	<!-- Nodes -->
+	<node name="find_object_2d" pkg="find_object_2d" type="find_object_2d" output="screen">
+		<remap from="image" to="/camera/color/image_raw2"/>
+		<param name="gui" value="true" type="bool"/>
+		<param name="objects_path" value="~/catkin_ws/src/sahayak-bot/ebot_perception/objects" type="str"/>
+		<param name="settings_path" value="~/.ros/find_object_2d.ini" type="str"/>
+	</node>
+</launch>

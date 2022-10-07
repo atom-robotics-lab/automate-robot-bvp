@@ -1,0 +1,10 @@
+# request
+string room_name
+---
+#response
+bool Nav_success
+string room_reached
+---
+#feedback
+float32 position_error
+float32 theta_error

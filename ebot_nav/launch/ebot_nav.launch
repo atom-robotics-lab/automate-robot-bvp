@@ -1,0 +1,13 @@
+<launch>
+	<!-- <include file="$(find ebot_description)/launch/task2.launch" /> -->
+
+	<node name="map_server" pkg="map_server" type="map_server" args="$(find ebot_nav)/maps/task2.yaml" />
+	
+	<include file="$(find ebot_nav)/launch/amcl.launch" />
+	<include file="$(find ebot_nav)/launch/move_base.launch" />
+	
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find ebot_nav)/config/my.rviz" output = "screen"/>
+
+	<node name="ebot_waypoints" pkg="ebot_nav" type="ebot_waypoint_nav.py"    />
+
+</launch>

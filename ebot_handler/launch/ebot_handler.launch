@@ -1,0 +1,4 @@
+<launch>	
+	<node name="ebot_handler_client" pkg="ebot_handler" type="ebot_client.py" output="screen" />
+	<node name="task_publisher" pkg="ebot_handler" type="task_publisher.py" output="screen" />
+</launch>
