@@ -11,12 +11,12 @@ import os
 import rospy
 
 from geometry_msgs.msg import PoseStamped
-#from object_msgs.msg import ObjectPose
+from object_msgs.msg import ObjectPose
 from sensor_msgs.msg import Image
-#from find_object_2d.msg import ObjectsStamped, DetectionInfo
+from find_object_2d.msg import ObjectsStamped, DetectionInfo
 
 from actionlib import SimpleActionServer
-from ebot_handler.msg import PerceptionAction, PerceptionResult, PerceptionFeedback
+from ebot_handler.msg import PerceptionAction, PerceptionResult, PerceptionFeedbacks
 from rospy.exceptions import ROSException
 
 import roslaunch
@@ -255,7 +255,7 @@ class PerceptionActionServer:
 
         # wait for find_object_2d to start publishing on /info topic
         # Send false goal if timeout is reached
-        '''try:
+        try:
             rospy.wait_for_message('/info', DetectionInfo, rospy.Duration(3))
         except ROSException:
             rospy.logerr("WAITING FOR /info MESSAGE TIMEOUT!")
@@ -264,7 +264,7 @@ class PerceptionActionServer:
             self._result.ob_success = False
             #self._result.ob_data = ObjectPose()
             self.perception_server.set_succeeded(self._result)
-            return'''
+            return
 
         # initialize ObjectPerception object if message is received on /info to initialize image_sub and ob_sub
         self.ob_perception = WorkpieceDetector(goal.ob_name)
@@ -279,7 +279,7 @@ class PerceptionActionServer:
         if ob_data is None:
             rospy.logerr("NO OBJECT DETECTED BY FIND_OBJECT_2D")
             self._result.ob_success = False
-            #self._result.ob_data = ObjectPose()
+            self._result.ob_data = ObjectPose()
             self.perception_server.set_succeeded(self._result)
             return
 
