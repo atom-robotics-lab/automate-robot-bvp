@@ -36,5 +36,8 @@ args="spawn arm_controller gripper_controller" respawn="false" />
   <arg name="debug" value="false"/>
 </include>
 
+<node name="arm_manipulation" pkg="ur5_config" type="arm_manipulation.py" output="screen"/>
+
+
 </launch>
 
