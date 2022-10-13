@@ -1527,20 +1527,20 @@
         <origin rpy="0.0 0.0 0" xyz="0 0 0.521" />
         <!--576 height from ground-->
     </joint>
-    <joint name="robotiq_85_base_joint" type="fixed">
+    <joint name="gripper_base_joint" type="fixed">
         <parent link="wrist_3_link" />
-        <child link="robotiq_85_base_link" />
+        <child link="gripper_base_link" />
         <origin rpy="0 0 1.5707963267948966" xyz="0 0.1 0" />
     </joint>
-    <link name="robotiq_85_base_link">
+    <link name="gripper_base_link">
         <visual>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/visual/robotiq_85_base_link.dae" />
+                <mesh filename="package://robotiq_85_description/meshes/visual/robotiq_85_base_link.dae" />
             </geometry>
         </visual>
         <collision>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/collision/robotiq_85_base_link.stl" />
+                <mesh filename="package://robotiq_85_description/meshes/collision/robotiq_85_base_link.stl" />
             </geometry>
         </collision>
         <inertial>
@@ -1549,30 +1549,37 @@
             <inertia ixx="0.000380" ixy="0.000000" ixz="0.000000" iyx="0.000000" iyy="0.001110" iyz="0.000000" izx="0.000000" izy="0.000000" izz="0.001171" />
         </inertial>
     </link>
-    <joint name="robotiq_85_left_knuckle_joint" type="revolute">
-        <parent link="robotiq_85_base_link" />
-        <child link="robotiq_85_left_knuckle_link" />
+    <gazebo reference="gripper_base_link">
+        <implicitSpringDamper>1</implicitSpringDamper>
+        <mu1>100000</mu1>
+        <mu2>100000</mu2>
+        <kp>100000000.0</kp>
+        <kd>1.0</kd>
+    </gazebo>
+    <joint name="gripper_finger1_joint" type="revolute">
+        <parent link="gripper_base_link" />
+        <child link="gripper_finger1_knuckle_link" />
         <axis xyz="0 0 1" />
         <origin rpy="3.141592653589793 0.0 0.0" xyz="0.05490451627 0.03060114443 0.0" />
-        <limit effort="1000" lower="0.0" upper="0.80285" velocity="0.5" />
+        <limit effort="1000" lower="0.0" upper="0.804" velocity="2.0" />
     </joint>
-    <joint name="robotiq_85_right_knuckle_joint" type="continuous">
-        <parent link="robotiq_85_base_link" />
-        <child link="robotiq_85_right_knuckle_link" />
+    <joint name="gripper_finger2_joint" type="revolute">
+        <parent link="gripper_base_link" />
+        <child link="gripper_finger2_knuckle_link" />
         <axis xyz="0 0 1" />
         <origin rpy="0.0 0.0 0.0" xyz="0.05490451627 -0.03060114443 0.0" />
         <limit effort="1000" lower="-3.14" upper="3.14" velocity="100.0" />
-        <mimic joint="robotiq_85_left_knuckle_joint" />
+        <mimic joint="gripper_finger1_joint" />
     </joint>
-    <link name="robotiq_85_left_knuckle_link">
+    <link name="gripper_finger1_knuckle_link">
         <visual>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/visual/robotiq_85_knuckle_link.dae" />
+                <mesh filename="package://robotiq_85_description/meshes/visual/robotiq_85_knuckle_link.dae" />
             </geometry>
         </visual>
         <collision>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/collision/robotiq_85_knuckle_link.stl" />
+                <mesh filename="package://robotiq_85_description/meshes/collision/robotiq_85_knuckle_link.stl" />
             </geometry>
         </collision>
         <inertial>
@@ -1581,15 +1588,22 @@
             <inertia ixx="0.000009" ixy="-0.000001" ixz="0.000000" iyx="-0.000001" iyy="0.000001" iyz="0.000000" izx="0.000000" izy="0.000000" izz="0.000010" />
         </inertial>
     </link>
-    <link name="robotiq_85_right_knuckle_link">
+    <gazebo reference="gripper_finger1_knuckle_link">
+        <implicitSpringDamper>1</implicitSpringDamper>
+        <mu1>100000</mu1>
+        <mu2>100000</mu2>
+        <kp>100000000.0</kp>
+        <kd>1.0</kd>
+    </gazebo>
+    <link name="gripper_finger2_knuckle_link">
         <visual>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/visual/robotiq_85_knuckle_link.dae" />
+                <mesh filename="package://robotiq_85_description/meshes/visual/robotiq_85_knuckle_link.dae" />
             </geometry>
         </visual>
         <collision>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/collision/robotiq_85_knuckle_link.stl" />
+                <mesh filename="package://robotiq_85_description/meshes/collision/robotiq_85_knuckle_link.stl" />
             </geometry>
         </collision>
         <inertial>
@@ -1598,25 +1612,32 @@
             <inertia ixx="0.000009" ixy="-0.000001" ixz="0.000000" iyx="-0.000001" iyy="0.000001" iyz="0.000000" izx="0.000000" izy="0.000000" izz="0.000010" />
         </inertial>
     </link>
-    <joint name="robotiq_85_left_finger_joint" type="fixed">
-        <parent link="robotiq_85_left_knuckle_link" />
-        <child link="robotiq_85_left_finger_link" />
+    <gazebo reference="gripper_finger2_knuckle_link">
+        <implicitSpringDamper>1</implicitSpringDamper>
+        <mu1>100000</mu1>
+        <mu2>100000</mu2>
+        <kp>100000000.0</kp>
+        <kd>1.0</kd>
+    </gazebo>
+    <joint name="gripper_finger1_finger_joint" type="fixed">
+        <parent link="gripper_finger1_knuckle_link" />
+        <child link="gripper_finger1_finger_link" />
         <origin rpy="0 0 0" xyz="-0.00408552455 -0.03148604435 0.0" />
     </joint>
-    <joint name="robotiq_85_right_finger_joint" type="fixed">
-        <parent link="robotiq_85_right_knuckle_link" />
-        <child link="robotiq_85_right_finger_link" />
+    <joint name="gripper_finger2_finger_joint" type="fixed">
+        <parent link="gripper_finger2_knuckle_link" />
+        <child link="gripper_finger2_finger_link" />
         <origin rpy="0 0 0" xyz="-0.00408552455 -0.03148604435 0.0" />
     </joint>
-    <link name="robotiq_85_left_finger_link">
+    <link name="gripper_finger1_finger_link">
         <visual>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/visual/robotiq_85_finger_link.dae" />
+                <mesh filename="package://robotiq_85_description/meshes/visual/robotiq_85_finger_link.dae" />
             </geometry>
         </visual>
         <collision>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/collision/robotiq_85_finger_link.stl" />
+                <mesh filename="package://robotiq_85_description/meshes/collision/robotiq_85_finger_link.stl" />
             </geometry>
         </collision>
         <inertial>
@@ -1625,15 +1646,22 @@
             <inertia ixx="0.000003" ixy="-0.000002" ixz="0.000000" iyx="-0.000002" iyy="0.000021" iyz="0.000000" izx="0.000000" izy="0.000000" izz="0.000020" />
         </inertial>
     </link>
-    <link name="robotiq_85_right_finger_link">
+    <gazebo reference="gripper_finger1_finger_link">
+        <implicitSpringDamper>1</implicitSpringDamper>
+        <mu1>100000</mu1>
+        <mu2>100000</mu2>
+        <kp>100000000.0</kp>
+        <kd>1.0</kd>
+    </gazebo>
+    <link name="gripper_finger2_finger_link">
         <visual>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/visual/robotiq_85_finger_link.dae" />
+                <mesh filename="package://robotiq_85_description/meshes/visual/robotiq_85_finger_link.dae" />
             </geometry>
         </visual>
         <collision>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/collision/robotiq_85_finger_link.stl" />
+                <mesh filename="package://robotiq_85_description/meshes/collision/robotiq_85_finger_link.stl" />
             </geometry>
         </collision>
         <inertial>
@@ -1642,31 +1670,38 @@
             <inertia ixx="0.000003" ixy="-0.000002" ixz="0.000000" iyx="-0.000002" iyy="0.000021" iyz="0.000000" izx="0.000000" izy="0.000000" izz="0.000020" />
         </inertial>
     </link>
-    <joint name="robotiq_85_left_inner_knuckle_joint" type="continuous">
-        <parent link="robotiq_85_base_link" />
-        <child link="robotiq_85_left_inner_knuckle_link" />
+    <gazebo reference="gripper_finger2_finger_link">
+        <implicitSpringDamper>1</implicitSpringDamper>
+        <mu1>100000</mu1>
+        <mu2>100000</mu2>
+        <kp>100000000.0</kp>
+        <kd>1.0</kd>
+    </gazebo>
+    <joint name="gripper_finger1_inner_knuckle_joint" type="continuous">
+        <parent link="gripper_base_link" />
+        <child link="gripper_finger1_inner_knuckle_link" />
         <axis xyz="0 0 1" />
         <origin rpy="3.141592653589793 0.0 0.0" xyz="0.06142 0.0127 0" />
         <limit effort="0.1" lower="-3.14" upper="3.14" velocity="100.0" />
-        <mimic joint="robotiq_85_left_knuckle_joint" offset="0" />
+        <mimic joint="gripper_finger1_joint" offset="0" />
     </joint>
-    <joint name="robotiq_85_right_inner_knuckle_joint" type="continuous">
-        <parent link="robotiq_85_base_link" />
-        <child link="robotiq_85_right_inner_knuckle_link" />
+    <joint name="gripper_finger2_inner_knuckle_joint" type="continuous">
+        <parent link="gripper_base_link" />
+        <child link="gripper_finger2_inner_knuckle_link" />
         <axis xyz="0 0 1" />
         <origin rpy="0 0 0" xyz="0.06142 -0.0127 0" />
         <limit effort="0.1" lower="-3.14" upper="3.14" velocity="100.0" />
-        <mimic joint="robotiq_85_left_knuckle_joint" offset="0" />
+        <mimic joint="gripper_finger1_joint" offset="0" />
     </joint>
-    <link name="robotiq_85_left_inner_knuckle_link">
+    <link name="gripper_finger1_inner_knuckle_link">
         <visual>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/visual/robotiq_85_inner_knuckle_link.dae" />
+                <mesh filename="package://robotiq_85_description/meshes/visual/robotiq_85_inner_knuckle_link.dae" />
             </geometry>
         </visual>
         <collision>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/collision/robotiq_85_inner_knuckle_link.stl" />
+                <mesh filename="package://robotiq_85_description/meshes/collision/robotiq_85_inner_knuckle_link.stl" />
             </geometry>
         </collision>
         <inertial>
@@ -1675,15 +1710,22 @@
             <inertia ixx="0.000039" ixy="0.000000" ixz="0.000000" iyx="0.000000" iyy="0.000005" iyz="0.000000" izx="0.000000" izy="0.000000" izz="0.000035" />
         </inertial>
     </link>
-    <link name="robotiq_85_right_inner_knuckle_link">
+    <gazebo reference="gripper_finger1_inner_knuckle_link">
+        <implicitSpringDamper>1</implicitSpringDamper>
+        <mu1>100000</mu1>
+        <mu2>100000</mu2>
+        <kp>100000000.0</kp>
+        <kd>1.0</kd>
+    </gazebo>
+    <link name="gripper_finger2_inner_knuckle_link">
         <visual>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/visual/robotiq_85_inner_knuckle_link.dae" />
+                <mesh filename="package://robotiq_85_description/meshes/visual/robotiq_85_inner_knuckle_link.dae" />
             </geometry>
         </visual>
         <collision>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/collision/robotiq_85_inner_knuckle_link.stl" />
+                <mesh filename="package://robotiq_85_description/meshes/collision/robotiq_85_inner_knuckle_link.stl" />
             </geometry>
         </collision>
         <inertial>
@@ -1692,31 +1734,38 @@
             <inertia ixx="0.000039" ixy="0.000000" ixz="0.000000" iyx="0.000000" iyy="0.000005" iyz="0.000000" izx="0.000000" izy="0.000000" izz="0.000035" />
         </inertial>
     </link>
-    <joint name="robotiq_85_left_finger_tip_joint" type="continuous">
-        <parent link="robotiq_85_left_inner_knuckle_link" />
-        <child link="robotiq_85_left_finger_tip_link" />
+    <gazebo reference="gripper_finger2_inner_knuckle_link">
+        <implicitSpringDamper>1</implicitSpringDamper>
+        <mu1>100000</mu1>
+        <mu2>100000</mu2>
+        <kp>100000000.0</kp>
+        <kd>1.0</kd>
+    </gazebo>
+    <joint name="gripper_finger1_finger_tip_joint" type="continuous">
+        <parent link="gripper_finger1_inner_knuckle_link" />
+        <child link="gripper_finger1_finger_tip_link" />
         <axis xyz="0 0 1" />
         <origin rpy="0.0 0.0 0.0" xyz="0.04303959807 -0.03759940821 0.0" />
         <limit effort="0.1" lower="-3.14" upper="3.14" velocity="100.0" />
-        <mimic joint="robotiq_85_left_knuckle_joint" multiplier="-1" />
+        <mimic joint="gripper_finger1_joint" multiplier="-1" />
     </joint>
-    <joint name="robotiq_85_right_finger_tip_joint" type="continuous">
-        <parent link="robotiq_85_right_inner_knuckle_link" />
-        <child link="robotiq_85_right_finger_tip_link" />
+    <joint name="gripper_finger2_finger_tip_joint" type="continuous">
+        <parent link="gripper_finger2_inner_knuckle_link" />
+        <child link="gripper_finger2_finger_tip_link" />
         <axis xyz="0 0 1" />
         <origin rpy="0.0 0.0 0.0" xyz="0.04303959807 -0.03759940821  0.0" />
         <limit effort="0.1" lower="-3.14" upper="3.14" velocity="100.0" />
-        <mimic joint="robotiq_85_left_knuckle_joint" multiplier="-1" />
+        <mimic joint="gripper_finger1_joint" multiplier="-1" />
     </joint>
-    <link name="robotiq_85_left_finger_tip_link">
+    <link name="gripper_finger1_finger_tip_link">
         <visual>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/visual/robotiq_85_finger_tip_link.dae" />
+                <mesh filename="package://robotiq_85_description/meshes/visual/robotiq_85_finger_tip_link.dae" />
             </geometry>
         </visual>
         <collision>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/collision/robotiq_85_finger_tip_link.stl" />
+                <mesh filename="package://robotiq_85_description/meshes/collision/robotiq_85_finger_tip_link.stl" />
             </geometry>
         </collision>
         <inertial>
@@ -1725,15 +1774,22 @@
             <inertia ixx="0.000002" ixy="0.000000" ixz="0.000000" iyx="0.000000" iyy="0.000005" iyz="0.000000" izx="0.000000" izy="0.000000" izz="0.000006" />
         </inertial>
     </link>
-    <link name="robotiq_85_right_finger_tip_link">
+    <gazebo reference="gripper_finger1_finger_tip_link">
+        <implicitSpringDamper>1</implicitSpringDamper>
+        <mu1>100000</mu1>
+        <mu2>100000</mu2>
+        <kp>100000000.0</kp>
+        <kd>1.0</kd>
+    </gazebo>
+    <link name="gripper_finger2_finger_tip_link">
         <visual>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/visual/robotiq_85_finger_tip_link.dae" />
+                <mesh filename="package://robotiq_85_description/meshes/visual/robotiq_85_finger_tip_link.dae" />
             </geometry>
         </visual>
         <collision>
             <geometry>
-                <mesh filename="package://robotiq_description/meshes/collision/robotiq_85_finger_tip_link.stl" />
+                <mesh filename="package://robotiq_85_description/meshes/collision/robotiq_85_finger_tip_link.stl" />
             </geometry>
         </collision>
         <inertial>
@@ -1742,54 +1798,69 @@
             <inertia ixx="0.000002" ixy="0.000000" ixz="0.000000" iyx="0.000000" iyy="0.000005" iyz="0.000000" izx="0.000000" izy="0.000000" izz="0.000006" />
         </inertial>
     </link>
-    <!-- Improve grasping physics -->
-    <gazebo reference="robotiq_85_left_finger_tip_link">
-        <kp>1000000.0</kp>
+    <gazebo reference="gripper_finger2_finger_tip_link">
+        <implicitSpringDamper>1</implicitSpringDamper>
+        <mu1>100000</mu1>
+        <mu2>100000</mu2>
+        <kp>100000000.0</kp>
         <kd>1.0</kd>
-        <mu1>1.0</mu1>
-        <mu2>1.0</mu2>
-        <minDepth>0.001</minDepth>
     </gazebo>
-    <gazebo reference="robotiq_85_right_finger_tip_link">
-        <kp>1000000.0</kp>
-        <kd>1.0</kd>
-        <mu1>1.0</mu1>
-        <mu2>1.0</mu2>
-        <minDepth>0.001</minDepth>
+    <gazebo>
+        <plugin filename="libgazebo_grasp_fix.so" name="gazebo_grasp_fix">
+            <arm>
+                <arm_name>gripper_arm</arm_name>
+                <palm_link>wrist_3_link</palm_link>
+                <gripper_link>gripper_finger1_finger_tip_link</gripper_link>
+                <gripper_link>gripper_finger2_finger_tip_link</gripper_link>
+            </arm>
+            <forces_angle_tolerance>100</forces_angle_tolerance>
+            <update_rate>2</update_rate>
+            <grip_count_threshold>1</grip_count_threshold>
+            <max_grip_count>2</max_grip_count>
+            <release_tolerance>0.005</release_tolerance>
+            <disable_collisions_on_attach>true</disable_collisions_on_attach>
+            <contact_topic>__default_topic__</contact_topic>
+        </plugin>
     </gazebo>
-    <transmission name="robotiq_85_left_knuckle_trans">
+    <transmission name="gripper_finger1_trans">
         <type>transmission_interface/SimpleTransmission</type>
-        <joint name="robotiq_85_left_knuckle_joint">
-            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        <joint name="gripper_finger1_joint">
+            <hardwareInterface>PositionJointInterface</hardwareInterface>
         </joint>
-        <actuator name="robotiq_85_left_knuckle_motor">
+        <actuator name="gripper_finger1_motor">
             <mechanicalReduction>1</mechanicalReduction>
-            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <hardwareInterface>PositionJointInterface</hardwareInterface>
         </actuator>
     </transmission>
-    <!-- Mimic joints -->
     <gazebo>
-        <plugin filename="libgazebo_mimic_joint_plugin.so" name="mimic_robotiq_85_1">
-            <joint>robotiq_85_left_knuckle_joint</joint>
-            <mimicJoint>robotiq_85_right_knuckle_joint</mimicJoint>
+        <!-- loading plugin: mimic joints works in gazebo now -->
+        <plugin filename="libroboticsgroup_gazebo_mimic_joint_plugin.so" name="mimic_robotiq_85_1">
+            <joint>gripper_finger1_joint</joint>
+            <mimicJoint>gripper_finger2_joint</mimicJoint>
+            <!--multiplier>1.0</multiplier>
+                <offset>0.0</offset-->
         </plugin>
-        <plugin filename="libgazebo_mimic_joint_plugin.so" name="mimic_robotiq_85_2">
-            <joint>robotiq_85_left_knuckle_joint</joint>
-            <mimicJoint>robotiq_85_left_inner_knuckle_joint</mimicJoint>
+        <plugin filename="libroboticsgroup_gazebo_mimic_joint_plugin.so" name="mimic_robotiq_85_2">
+            <joint>gripper_finger1_joint</joint>
+            <mimicJoint>gripper_finger2_inner_knuckle_joint</mimicJoint>
+            <!--multiplier>1.0</multiplier>
+                <offset>0.0</offset-->
         </plugin>
-        <plugin filename="libgazebo_mimic_joint_plugin.so" name="mimic_robotiq_85_3">
-            <joint>robotiq_85_left_knuckle_joint</joint>
-            <mimicJoint>robotiq_85_right_inner_knuckle_joint</mimicJoint>
+        <plugin filename="libroboticsgroup_gazebo_mimic_joint_plugin.so" name="mimic_robotiq_85_3">
+            <joint>gripper_finger1_joint</joint>
+            <mimicJoint>gripper_finger1_inner_knuckle_joint</mimicJoint>
+            <!--multiplier>1.0</multiplier>
+                <offset>0.0</offset-->
         </plugin>
-        <plugin filename="libgazebo_mimic_joint_plugin.so" name="mimic_robotiq_85_4">
-            <joint>robotiq_85_left_knuckle_joint</joint>
-            <mimicJoint>robotiq_85_left_finger_tip_joint</mimicJoint>
+        <plugin filename="libroboticsgroup_gazebo_mimic_joint_plugin.so" name="mimic_robotiq_85_4">
+            <joint>gripper_finger1_joint</joint>
+            <mimicJoint>gripper_finger1_finger_tip_joint</mimicJoint>
             <multiplier>-1.0</multiplier>
             <offset>0.0</offset>
         </plugin>
-        <plugin filename="libgazebo_mimic_joint_plugin.so" name="mimic_robotiq_85_5">
-            <joint>robotiq_85_left_knuckle_joint</joint>
-            <mimicJoint>robotiq_85_right_finger_tip_joint</mimicJoint>
+        <plugin filename="libroboticsgroup_gazebo_mimic_joint_plugin.so" name="mimic_robotiq_85_5">
+            <joint>gripper_finger1_joint</joint>
+            <mimicJoint>gripper_finger2_finger_tip_joint</mimicJoint>
             <multiplier>-1.0</multiplier>
             <offset>0.0</offset>
         </plugin>
@@ -2008,52 +2079,52 @@
             <mechanicalReduction>1</mechanicalReduction>
         </actuator>
     </transmission>
-    <transmission name="trans_robotiq_85_right_knuckle_joint">
+    <transmission name="trans_gripper_finger2_joint">
         <type>transmission_interface/SimpleTransmission</type>
-        <joint name="robotiq_85_right_knuckle_joint">
+        <joint name="gripper_finger2_joint">
             <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
         </joint>
-        <actuator name="robotiq_85_right_knuckle_joint_motor">
+        <actuator name="gripper_finger2_joint_motor">
             <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
             <mechanicalReduction>1</mechanicalReduction>
         </actuator>
     </transmission>
-    <transmission name="trans_robotiq_85_left_inner_knuckle_joint">
+    <transmission name="trans_gripper_finger1_inner_knuckle_joint">
         <type>transmission_interface/SimpleTransmission</type>
-        <joint name="robotiq_85_left_inner_knuckle_joint">
+        <joint name="gripper_finger1_inner_knuckle_joint">
             <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
         </joint>
-        <actuator name="robotiq_85_left_inner_knuckle_joint_motor">
+        <actuator name="gripper_finger1_inner_knuckle_joint_motor">
             <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
             <mechanicalReduction>1</mechanicalReduction>
         </actuator>
     </transmission>
-    <transmission name="trans_robotiq_85_right_inner_knuckle_joint">
+    <transmission name="trans_gripper_finger2_inner_knuckle_joint">
         <type>transmission_interface/SimpleTransmission</type>
-        <joint name="robotiq_85_right_inner_knuckle_joint">
+        <joint name="gripper_finger2_inner_knuckle_joint">
             <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
         </joint>
-        <actuator name="robotiq_85_right_inner_knuckle_joint_motor">
+        <actuator name="gripper_finger2_inner_knuckle_joint_motor">
             <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
             <mechanicalReduction>1</mechanicalReduction>
         </actuator>
     </transmission>
-    <transmission name="trans_robotiq_85_left_finger_tip_joint">
+    <transmission name="trans_gripper_finger1_finger_tip_joint">
         <type>transmission_interface/SimpleTransmission</type>
-        <joint name="robotiq_85_left_finger_tip_joint">
+        <joint name="gripper_finger1_finger_tip_joint">
             <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
         </joint>
-        <actuator name="robotiq_85_left_finger_tip_joint_motor">
+        <actuator name="gripper_finger1_finger_tip_joint_motor">
             <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
             <mechanicalReduction>1</mechanicalReduction>
         </actuator>
     </transmission>
-    <transmission name="trans_robotiq_85_right_finger_tip_joint">
+    <transmission name="trans_gripper_finger2_finger_tip_joint">
         <type>transmission_interface/SimpleTransmission</type>
-        <joint name="robotiq_85_right_finger_tip_joint">
+        <joint name="gripper_finger2_finger_tip_joint">
             <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
         </joint>
-        <actuator name="robotiq_85_right_finger_tip_joint_motor">
+        <actuator name="gripper_finger2_finger_tip_joint_motor">
             <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
             <mechanicalReduction>1</mechanicalReduction>
         </actuator>
