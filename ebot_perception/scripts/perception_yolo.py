@@ -6,8 +6,9 @@ import sys
 import numpy as np
 from cv_bridge import CvBridge, CvBridgeError
 import rospy
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, CompressedImage
 import os
+import rospy
 
 INPUT_WIDTH = 640
 INPUT_HEIGHT = 640
@@ -15,7 +16,7 @@ SCORE_THRESHOLD = 0.2
 NMS_THRESHOLD = 0.4
 CONFIDENCE_THRESHOLD = 0.4
 
-os.chdir(os.getcwd())
+ROOT_DIR = os.getcwd()
 
 
 colors = [(255, 255, 0), (0, 255, 0), (0, 255, 255), (255, 0, 0)]
@@ -39,12 +40,12 @@ class WorkpieceDetector :
         self.start = time.time_ns()
         #self.frame = frame
         self.bridge = CvBridge()
-        self.image_sub = rospy.Subscriber("/camera/color/image_raw2/compressed",Image,self.load_capture)
-        print("init")
+        self.image_sub = rospy.Subscriber("/camera/color/image_raw2/compressed",CompressedImage,self.load_capture)
+        
         
 
     def build_model(self , is_cuda):
-        self.net = cv2.dnn.readNet("src/automate-robot-bvp/ebot_perception/scripts/automate.onnx")
+        self.net = cv2.dnn.readNet("src/automate-robot-bvp/ebot_perception/scripts/utils/automate.onnx")
         if is_cuda:
             print("Attempty to use CUDA")
             self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
@@ -65,16 +66,20 @@ class WorkpieceDetector :
         return preds
 
     def load_capture(self, data):
-        print("callback")
+        
         #self.capture = cv2.VideoCapture("sample.mp4")
-        self.frame = self.bridge.imgmsg_to_cv2(data, "bgr8")
+
+        np_arr = np.fromstring(data.data, np.uint8)
+        image_np = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+        self.frame = image_np
+        #self.frame = self.bridge.imgmsg_to_cv2(data)
         self.capture = self.frame
         #return self.capture
         self.control_loop()
 
     def load_classes(self):
         self.class_list = []
-        with open("src/automate-robot-bvp/ebot_perception/scripts/classes.txt", "r") as f:
+        with open("src/automate-robot-bvp/ebot_perception/scripts/utils/classes.txt", "r") as f:
             self.class_list = [cname.strip() for cname in f.readlines()]
         return self.class_list
 
@@ -137,8 +142,9 @@ class WorkpieceDetector :
 
 
     def control_loop(self) :
-        self.load_classes()
+        
         self.net = self.build_model(is_cuda)
+        self.load_classes()
         #self.capture = self.load_capture()
 
         #while self.capture is not None:
@@ -188,4 +194,6 @@ if __name__ == "__main__" :
 
     wd = WorkpieceDetector()
     rospy.spin()
-    #wd.control_loop()
+    wd.control_loop()
+
+
