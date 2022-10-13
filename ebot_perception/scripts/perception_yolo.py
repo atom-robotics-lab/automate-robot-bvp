@@ -10,11 +10,25 @@ from sensor_msgs.msg import Image, CompressedImage
 import os
 import rospy
 
+from geometry_msgs.msg import PoseStamped
+#from object_msgs.msg import ObjectPose
+from sensor_msgs.msg import Image
+#from find_object_2d.msg import ObjectsStamped, DetectionInfo
+
+from actionlib import SimpleActionServer
+from ebot_handler.msg import PerceptionAction, PerceptionResult, PerceptionFeedback
+from rospy.exceptions import ROSException
+
+import roslaunch
+
+import message_filters
+
+
 INPUT_WIDTH = 640
 INPUT_HEIGHT = 640
 SCORE_THRESHOLD = 0.2
 NMS_THRESHOLD = 0.4
-CONFIDENCE_THRESHOLD = 0.4
+CONFIDENCE_THRESHOLD = 0.8
 
 ROOT_DIR = os.getcwd()
 
@@ -33,14 +47,16 @@ fps = -1
 
 
 class WorkpieceDetector :
-    def __init__(self):
+    def __init__(self, ob_name):
         self.frame_count = 0
         self.total_frames = 0
         self.fps = -1
         self.start = time.time_ns()
         #self.frame = frame
         self.bridge = CvBridge()
-        self.image_sub = rospy.Subscriber("/camera/color/image_raw2/compressed",CompressedImage,self.load_capture)
+        self.image_sub = rospy.Subscriber("/camera/color/image_raw2/compressed", CompressedImage, self.load_capture)
+        self.object = ob_name
+        self.bb_frame = None
         
         
 
@@ -100,7 +116,7 @@ class WorkpieceDetector :
         for r in range(rows):
             row = output_data[r]
             confidence = row[4]
-            if confidence >= 0.4:
+            if confidence >= CONFIDENCE_THRESHOLD:
 
                 classes_scores = row[5:]
                 _, _, _, max_indx = cv2.minMaxLoc(classes_scores)
@@ -140,60 +156,185 @@ class WorkpieceDetector :
         result[0:row, 0:col] = frame
         return result
 
+    def display_objects() :
+        
+        if self.bb_frame is not None :
+            cv2.imshow("Object Detection", self.bb_frame)
+            if cv2.waitKey(100) & 0xFF == ord('q'):
+                return
+
+        else:
+            rospy.loginfo("Bounding box frame is None")
+
+
+
 
     def control_loop(self) :
         
         self.net = self.build_model(is_cuda)
         self.load_classes()
+        self.objectid = self.class_list.index(self.object)
         #self.capture = self.load_capture()
 
         #while self.capture is not None:
         frame = self.capture
         print("control_loop")
+        
         if frame is None:
             print("End of stream")
             exit()
+
+        try : 
         
-        inputImage = self.format_yolov5(frame)
-        #resized = cv2.resize(inputImage , (640,640))
-        #blurred = cv2.blur(resized ,(10,10))
-        outs = self.detect(inputImage, self.net)
-        class_ids, confidences, boxes = self.wrap_detection(inputImage, outs[0])
-        print("ID : " , class_ids)
-        print("Boxes : ",boxes)
-        self.frame_count += 1
-        self.total_frames += 1
-        for (classid, confidence, box) in zip(class_ids, confidences, boxes):
-             color = colors[int(classid) % len(colors)]
-             cv2.rectangle(frame, box, color, 2)
-             cv2.rectangle(frame, (box[0], box[1] - 20), (box[0] + box[2], box[1]), color, -1)
-             try :
-                 cv2.putText(frame, self.class_list[classid], (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0,0,0))
-             except :
-                 pass
-             
-        if self.frame_count >= 30:
-            self.end = time.time_ns()
-            self.fps = 1000000000 * frame_count / (self.end - self.start)
-            self.frame_count = 0
-            self.start = time.time_ns()
-        if self.fps > 0:
-            self.fps_label = "FPS: %.2f" % self.fps
-            cv2.putText(frame, fps_label, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-        cv2.imshow("output", frame)
-        if cv2.waitKey(0) > -1:
-            print("finished by user")
-            exit()
+            inputImage = self.format_yolov5(frame)
+            #resized = cv2.resize(inputImage , (640,640))
+            #blurred = cv2.blur(resized ,(10,10))
+            outs = self.detect(inputImage, self.net)
+            class_ids, confidences, boxes = self.wrap_detection(inputImage, outs[0])
+            #print("ID : " , class_ids)
+            #print("Boxes : ",boxes)
+            self.frame_count += 1
+            self.total_frames += 1
+
+            index = None
+            return_val = None
+            self.bb_frame = frame.copy()
+
+            if self.objectid in class_ids :
+                index = class_ids.index(self.objectid)
+                classid, confidence, box = class_ids[index], confidences[index], boxes[index]
+                color = colors[int(classid) % len(colors)]
+                cv2.rectangle(self.bb_frame , box, color, 2)
+                cv2.rectangle(self.bb_frame , (box[0], box[1] - 20), (box[0] + box[2], box[1]), color, -1)
+                try :
+                    cv2.putText(self.bb_frame , self.class_list[classid], (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0,0,0))
+                except :
+                    pass
+                return_val = box
+
+
+            if self.frame_count >= 30:
+                self.end = time.time_ns()
+                self.fps = 1000000000 * frame_count / (self.end - self.start)
+                self.frame_count = 0
+                self.start = time.time_ns()
+            if self.fps > 0:
+                self.fps_label = "FPS: %.2f" % self.fps
+                cv2.putText(frame, fps_label, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            #cv2.imshow("output", frame)
+
+            #if cv2.waitKey(100) & 0xFF == ord('q'):
+                #return
+
+            #print(return_val)
+            return return_val
+
+        except :
+            return None
+
+
+class PerceptionActionServer: 
+    '''class to generate ObjectPose message and publish it on detection_info topic'''
+
+    def __init__(self, name): 
+        self.server_name = name
+        self.perception_server = SimpleActionServer(self.server_name, PerceptionAction, self.execute_cb, auto_start=False)
+        self._feedback = PerceptionFeedback()
+        self._result = PerceptionResult()
+
+        rospy.loginfo("Starting Perception Action Server")
+        self.perception_server.start()
+        rospy.loginfo("Perception Action Server STARTED")
+        
+    def execute_cb(self, goal): 
+        '''Execute callback function called when goal received by Perception Action Server
+            parameters: goal->PerceptionAction->goal sent by Perception Action Client
+            returns: nothing'''
+
+        rospy.loginfo("GOAL recieved")
+
+        # wait for find_object_2d to start publishing on /info topic
+        # Send false goal if timeout is reached
+        '''try:
+            rospy.wait_for_message('/info', DetectionInfo, rospy.Duration(3))
+        except ROSException:
+            rospy.logerr("WAITING FOR /info MESSAGE TIMEOUT!")
+            rospy.logwarn("Maybe find_object_2d has not started fully")
+            rospy.logwarn("SENDING FALSE SUCCESS TO CLIENT")
+            self._result.ob_success = False
+            #self._result.ob_data = ObjectPose()
+            self.perception_server.set_succeeded(self._result)
+            return'''
+
+        # initialize ObjectPerception object if message is received on /info to initialize image_sub and ob_sub
+        self.ob_perception = WorkpieceDetector(goal.ob_name)
+
+        # wait 3 seconds to allow subscriber to make connections
+        rospy.sleep(3)
+
+        # get object data published from find_object_2d 
+        ob_data = self.ob_perception.control_loop()
+
+        # if no object is detected return False success to client
+        if ob_data is None:
+            rospy.logerr("NO OBJECT DETECTED BY FIND_OBJECT_2D")
+            self._result.ob_success = False
+            #self._result.ob_data = ObjectPose()
+            self.perception_server.set_succeeded(self._result)
+            return
+
+        # display image with bounding box on objects
+        self.ob_perception.display_objects()
+
+        ob_detected = 0 
+
+        # get the pose of the object to be picked
+
+        
+        
+        rospy.loginfo("[RESULT]: {} IDENTIFIED".format(goal.ob_name.upper()))
+        #if ob['name'] == goal.ob_name:
+        self.msg = ObjectPose()
+        self.msg.name = goal.ob_name 
+        self.msg.pose = PoseStamped()
+        self.msg.pose.pose.position.x = 0 #ob['trans'][0] 
+        self.msg.pose.pose.position.y = 0 #ob['trans'][1]
+        self.msg.pose.pose.position.z = 0 #ob['trans'][2]
+        self.msg.pose.pose.orientation.x = 0 #ob['rot'][0] 
+        self.msg.pose.pose.orientation.y = 0 #ob['rot'][1]
+        self.msg.pose.pose.orientation.z = 0 #ob['rot'][2]
+        self.msg.pose.pose.orientation.w = 0 #ob['rot'][3]
+        ob_detected = 1 
+
+            #else:
+                #self._feedback.ob_detected = ob['name']
+                #self.perception_server.publish_feedback(self._feedback)
+
+        # return True success and ObjectPose message of the object to be picked if it was detected
+        # else return false success and empty pose
+        if ob_detected:
+            self._result.ob_success = True
+            self._result.ob_data = self.msg
+            self.perception_server.set_succeeded(self._result)
+            return
+
+        else:
+            self._result.ob_success = False
+            #self._result.ob_data = ObjectPose()
+            self.perception_server.set_succeeded(self._result)
+            return
+        
 
 #print("Total frames: " + str(total_frames))
 
 if __name__ == "__main__" :
-    rospy.init_node("perception_yolo")
-    #sub = rospy.Subscriber()
-    #img = cv2.imread('sample2.png')
 
-    wd = WorkpieceDetector()
-    rospy.spin()
-    wd.control_loop()
-
+    try : 
+        rospy.init_node("perception_yolo")
+        perception_action_server = PerceptionActionServer('Perception_action_server')
+        rospy.spin()    
+    
+    except rospy.ROSInterruptException:
+        pass
+    
 
