@@ -7,6 +7,7 @@ from Utils import TaskStatusCode
 
 from ebot_handler.msg import NavAction, NavGoal, NavFeedback, NavResult, Task, PerceptionAction, PerceptionGoal, PerceptionResult, PerceptionFeedback, TaskStatus
 from ebot_handler.srv import arm_go_to_poseRequest, arm_go_to_pose
+from ebot_perception.srv import *
 from Utils import dropbox
 
 
@@ -73,7 +74,7 @@ class Ur5ManipulationClient:
         self.req = arm_go_to_poseRequest()
     
     def go_to_pose(self, pose):
-        '''A function to send request to go to a predefined pose to the arm manipulaiton service
+        '''A function to send request to go to a predefined pose to the arm manipulation service
             parameter: pose: String: name of the predefined pose
             returns: nothing'''
 
@@ -105,6 +106,8 @@ class Ur5ManipulationClient:
         self.resp = self.service_client(self.req)
         if self.resp == True:
             rospy.loginfo('{} PICKED'.format(ob_pose.name.upper()))
+
+
 
 
 class TaskManager:
@@ -179,6 +182,10 @@ class TaskManager:
                 # go to detect pose before starting perception
                 self.arm_pose.go_to_pose('detect_pose')
 
+                
+                yolo_service_client()
+
+
                 # send the object to be picked to perception action client and wait for result from perception action server
                 #self.perception_client.object_recognition(self.ebot_task.ob_name)
                 #self.object_data = self.perception_client.object_result()
@@ -212,6 +219,16 @@ class TaskManager:
             # publish success task status code
             self.publish_status(TaskStatusCode.SUCCESS.value)
             return
+
+def yolo_service_client() :
+    rospy.wait_for_service('yolo_service')
+    
+    try :
+        yolo_client = rospy.ServiceProxy('yolo_service', find_object)
+        result = yolo_service()
+        return result.success
+    except rospy.ServiceException as e:
+        print("Service call failed :D")
 
 
 def main():

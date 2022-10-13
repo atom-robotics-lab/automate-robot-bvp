@@ -208,7 +208,7 @@ if __name__ == "__main__":
         rospy.init_node('perception_pipeline')
 
         # initialize perception action server
-        perception_action_server = PerceptionActionServer('Perception_action_server')
+        perception_action_server = PerceptionActionServer('/Perception_action_server')
 
         rospy.spin()
         

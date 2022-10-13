@@ -30,6 +30,8 @@
   <!-- This package is referenced in the warehouse launch files, but does not build out of the box at the moment. Commented the dependency until this works. -->
   <!-- <run_depend>warehouse_ros_mongo</run_depend> -->
     <run_depend>ebot_description</run_depend>
+    <!--<build_depend>message_generation</build_depend>
+    <exec_depend>message_runtime</exec_depend>-->
 
 
 </package>

@@ -1,7 +1,22 @@
 cmake_minimum_required(VERSION 3.1.3)
 project(ebot_perception)
 
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS
+    roscpp
+    rospy
+    std_msgs
+    message_generation
+)
+
+add_service_files(
+    FILES
+    find_object.srv
+)
+
+generate_messages(
+    DEPENDENCIES
+    std_msgs
+)
 
 catkin_package()
 
