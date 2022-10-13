@@ -7,7 +7,7 @@
 
   <xacro:include filename="$(find ur_description)/urdf/common.gazebo.xacro" />
   <xacro:include filename="$(find ur_description)/urdf/ur5.urdf.xacro" />
-  <xacro:include filename="$(find robotiq_description)/urdf/robotiq_85_gripper.urdf.xacro" />
+  <xacro:include filename="$(find robotiq_85_description)/urdf/robotiq_85_gripper.urdf.xacro" />
 
 
   <xacro:ur5_robot prefix="" joint_limited="false"/>

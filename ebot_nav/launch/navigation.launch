@@ -9,6 +9,6 @@
 
 	<rosparam file="$(find ebot_nav)/config/room_waypoints.yaml" command="load"/>
 
-	<!-- <node name="ebot_nav" pkg="ebot_nav" type="navigation_stack.py" output="screen" /> -->
+	<node name="ebot_nav" pkg="ebot_nav" type="navigation_stack.py" output="screen" />
 
 </launch>

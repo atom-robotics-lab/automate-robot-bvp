@@ -17,6 +17,7 @@ from find_object_2d.msg import ObjectsStamped, DetectionInfo
 
 from ebot_perception.srv import *
 
+
 from actionlib import SimpleActionServer
 from ebot_handler.msg import PerceptionAction, PerceptionResult, PerceptionFeedbacks
 from rospy.exceptions import ROSException
@@ -141,8 +142,10 @@ fps = -1
 
 
 class WorkpieceDetector :
+
     def __init__(self, ob_name = "GLASS"):
         
+
         self.frame_count = 0
         self.total_frames = 0
         self.fps = -1
@@ -251,6 +254,18 @@ class WorkpieceDetector :
         result[0:row, 0:col] = frame
         return result
 
+    def display_objects() :
+        
+        if self.bb_frame is not None :
+            cv2.imshow("Object Detection", self.bb_frame)
+            if cv2.waitKey(100) & 0xFF == ord('q'):
+                return
+
+        else:
+            rospy.loginfo("Bounding box frame is None")
+
+
+
 
     def display_objects(self) :
         
@@ -279,6 +294,7 @@ class WorkpieceDetector :
         if frame is None:
             print("End of stream")
             exit()
+
 
         return_val = False
         try : 
@@ -346,8 +362,10 @@ def find_object_cb(req) :
 #print("Total frames: " + str(total_frames))
 
 if __name__ == "__main__" :
+
     yolo_perception_server()
 
     
     
+
 

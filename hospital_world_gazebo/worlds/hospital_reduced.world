@@ -4125,10 +4125,10 @@
       <heading_deg>0</heading_deg>
     </spherical_coordinates>
     <state world_name='world'>
-      <sim_time>1813 87000000</sim_time>
-      <real_time>32 103644756</real_time>
-      <wall_time>1665133494 157268870</wall_time>
-      <iterations>31856</iterations>
+      <sim_time>1850 136000000</sim_time>
+      <real_time>37 153487387</real_time>
+      <wall_time>1665685075 344279008</wall_time>
+      <iterations>37049</iterations>
       <model name='AdjTable'>
         <pose>7.71148 16.4657 0 0 -0 0</pose>
         <scale>1 1 1</scale>
@@ -4790,21 +4790,21 @@
         </link>
       </model>
       <model name='Weston_No_22_Cajun_Jerky_Tonic_12_fl_oz_nLj64ZnGwDh'>
-        <pose>8.07065 16.2513 0.795813 0.033525 -0.007063 -0.000185</pose>
+        <pose>8.01036 16.2512 0.809669 0.02493 -0.008777 0.001378</pose>
         <scale>1 1 1</scale>
         <link name='link_0'>
-          <pose>8.07065 16.2513 0.795813 0.033525 -0.007063 -0.000185</pose>
-          <velocity>1.2e-05 -4e-06 -0.010988 -0.013675 -0.050061 7e-06</velocity>
-          <acceleration>0 0 -9.8 0 -0 0</acceleration>
-          <wrench>0 0 -9.8 0 -0 0</wrench>
+          <pose>8.01036 16.2512 0.809669 0.02493 -0.008777 0.001378</pose>
+          <velocity>0 -9e-06 -0.000241 -0.025823 -0.000978 2e-06</velocity>
+          <acceleration>7.5e-05 -3.6e-05 -0.005281 -0.083307 -0.209807 0</acceleration>
+          <wrench>7.5e-05 -3.6e-05 -0.005281 0 -0 0</wrench>
         </link>
       </model>
       <model name='Whey_Protein_Vanilla_12_Packets'>
-        <pose>7.78061 16.3322 0.799967 -0.002803 -0.00552 -0.010185</pose>
+        <pose>7.78061 16.3322 0.810311 -0.002803 -0.005521 -0.010186</pose>
         <scale>1 1 1</scale>
         <link name='link_0'>
-          <pose>7.78061 16.3322 0.799967 -0.002803 -0.00552 -0.010185</pose>
-          <velocity>0 -0 -0.009766 -0.00011 -0.000129 0</velocity>
+          <pose>7.78061 16.3322 0.810311 -0.002803 -0.005521 -0.010186</pose>
+          <velocity>-0 -0 0.000106 -0.000616 0.000182 0</velocity>
           <acceleration>0 0 -9.8 0 -0 0</acceleration>
           <wrench>0 0 -9.8 0 -0 0</wrench>
         </link>
@@ -4820,13 +4820,13 @@
         </link>
       </model>
       <model name='adhesive'>
-        <pose>7.23173 16.2283 0.956607 -5e-06 -0.000244 0</pose>
+        <pose>7.28953 16.2283 0.961782 -2.1e-05 0.000123 -0.001041</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>7.23173 16.2283 0.956607 -5e-06 -0.000244 0</pose>
+          <pose>7.28953 16.2283 0.961782 -2.1e-05 0.000123 -0.001041</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
+          <acceleration>0 0 -9.8 0 -0 0</acceleration>
+          <wrench>0 0 -0.784 0 -0 0</wrench>
         </link>
       </model>
       <model name='aws_robomaker_hospital_curtain_closed_01_1'>
@@ -5062,7 +5062,6 @@
       <model name='aws_robomaker_hospital_floor_01_walls_1'>
         <pose>0.051994 0.082857 -0.159763 -1.57244 0.008667 0.002876</pose>
         <scale>1 1 1</scale>
-        <static>1</static>
         <link name='aws_robomaker_hospital_floor_01_walls::link'>
           <pose>0.038291 0.08284 -0.145861 -1.57244 0.008667 0.002876</pose>
           <velocity>0 0 0 0 -0 0</velocity>
@@ -5206,7 +5205,7 @@
     </state>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose>4.78109 2.65476 6.41114 0 0.329797 1.67782</pose>
+        <pose>7.54171 15.0509 0.879568 0 -0.010203 1.51382</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>
