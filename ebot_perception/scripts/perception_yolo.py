@@ -9,7 +9,6 @@ import rospy
 from sensor_msgs.msg import Image, CompressedImage
 import os
 import rospy
-<<<<<<< HEAD
 
 from geometry_msgs.msg import PoseStamped
 from object_msgs.msg import ObjectPose
@@ -24,8 +23,6 @@ import roslaunch
 
 import message_filters
 
-=======
->>>>>>> yolo working on robotic arm's camera
 
 INPUT_WIDTH = 640
 INPUT_HEIGHT = 640
@@ -57,13 +54,9 @@ class WorkpieceDetector :
         self.start = time.time_ns()
         #self.frame = frame
         self.bridge = CvBridge()
-<<<<<<< HEAD
         self.image_sub = rospy.Subscriber("/camera/color/image_raw2/compressed", CompressedImage, self.load_capture)
         self.object = ob_name
         self.bb_frame = None
-=======
-        self.image_sub = rospy.Subscriber("/camera/color/image_raw2/compressed",CompressedImage,self.load_capture)
->>>>>>> yolo working on robotic arm's camera
         
         
 
@@ -180,10 +173,7 @@ class WorkpieceDetector :
         
         self.net = self.build_model(is_cuda)
         self.load_classes()
-<<<<<<< HEAD
         self.objectid = self.class_list.index(self.object)
-=======
->>>>>>> yolo working on robotic arm's camera
         #self.capture = self.load_capture()
 
         #while self.capture is not None:
@@ -339,7 +329,6 @@ class PerceptionActionServer:
 
 if __name__ == "__main__" :
 
-<<<<<<< HEAD
     try : 
         rospy.init_node("perception_yolo")
         perception_action_server = PerceptionActionServer('Perception_action_server')
@@ -348,10 +337,4 @@ if __name__ == "__main__" :
     except rospy.ROSInterruptException:
         pass
     
-=======
-    wd = WorkpieceDetector()
-    rospy.spin()
-    wd.control_loop()
-
->>>>>>> yolo working on robotic arm's camera
 
