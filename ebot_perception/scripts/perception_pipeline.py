@@ -211,6 +211,7 @@ if __name__ == "__main__":
         perception_action_server = PerceptionActionServer('Perception_action_server')
 
         rospy.spin()
+        
     except rospy.ROSInterruptException:
         pass
 
