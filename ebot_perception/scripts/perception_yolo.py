@@ -17,7 +17,6 @@ from find_object_2d.msg import ObjectsStamped, DetectionInfo
 
 from ebot_perception.srv import *
 
-
 from actionlib import SimpleActionServer
 #from ebot_handler.msg import PerceptionAction, PerceptionResult, PerceptionFeedbacks
 from rospy.exceptions import ROSException
@@ -295,7 +294,6 @@ class WorkpieceDetector :
             print("End of stream")
             exit()
 
-
         return_val = False
         try : 
         
@@ -365,6 +363,7 @@ def find_object_cb(req) :
 #print("Total frames: " + str(total_frames))
 
 if __name__ == "__main__" :
+    yolo_perception_server()
 
     yolo_perception_server()
 
