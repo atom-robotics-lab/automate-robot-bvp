@@ -18,7 +18,7 @@ from find_object_2d.msg import ObjectsStamped, DetectionInfo
 from ebot_perception.srv import *
 
 from actionlib import SimpleActionServer
-from ebot_handler.msg import PerceptionAction, PerceptionResult, PerceptionFeedbacks
+#from ebot_handler.msg import PerceptionAction, PerceptionResult, PerceptionFeedbacks
 from rospy.exceptions import ROSException
 
 import roslaunch
@@ -251,6 +251,18 @@ class WorkpieceDetector :
         result[0:row, 0:col] = frame
         return result
 
+    def display_objects() :
+        
+        if self.bb_frame is not None :
+            cv2.imshow("Object Detection", self.bb_frame)
+            if cv2.waitKey(0) & 0xFF == ord('q'):
+                return
+
+        else:
+            rospy.loginfo("Bounding box frame is None")
+
+
+
 
     def display_objects(self) :
         
@@ -308,6 +320,7 @@ class WorkpieceDetector :
                 except :
                     pass
                 return_val = True
+                rospy.loginfo("Detected : ",box)
 
 
             if self.frame_count >= 30:
@@ -336,10 +349,12 @@ def yolo_perception_server() :
     rospy.spin()
 
 def find_object_cb(req) :
+
+    rospy.loginfo("Perception request received")
     wd = WorkpieceDetector()
     result = wd.control_loop()
 
-    return find_objectResponse(success = result)
+    return find_objectResponse(result)
 
 
 

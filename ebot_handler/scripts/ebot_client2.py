@@ -225,7 +225,7 @@ def yolo_service_client() :
     
     try :
         yolo_client = rospy.ServiceProxy('yolo_service', find_object)
-        result = yolo_service()
+        result = yolo_client("GLASS")
         return result.success
     except rospy.ServiceException as e:
         print("Service call failed :D")
