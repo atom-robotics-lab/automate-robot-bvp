@@ -166,6 +166,6 @@ class WorkpieceDetector :
 #print("Total frames: " + str(total_frames))
 
 if __name__ == "__main__" :
-    img = cv2.imread('service1.png')
+    img = cv2.imread('sample2.png')
     wd = WorkpieceDetector(img)
     wd.control_loop()

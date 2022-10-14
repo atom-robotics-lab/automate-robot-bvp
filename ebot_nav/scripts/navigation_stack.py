@@ -137,7 +137,7 @@ class NavigationAction:
         total_waypoints = move_base.waypoint_supplier.get_total_waypoints()
 
         dist_precision = 0.6
-        theta_precision = 0.35
+        theta_precision = 0.8
 
         try:
             while True:
@@ -149,7 +149,8 @@ class NavigationAction:
 
                 # calculate error in goal and curr position
                 position_error = np.sqrt(pow(curr_waypoint.position.y - pose[1], 2) + pow(curr_waypoint.position.x - pose[0], 2))
-                theta_error = np.abs(yaw_final - pose[2])
+                theta_error = np.abs(yaw_final) - np.abs(pose[2])
+                theta_error = np.abs(theta_error)
 
                 # define and publish the action feedback
                 self._feedback.position_error = position_error

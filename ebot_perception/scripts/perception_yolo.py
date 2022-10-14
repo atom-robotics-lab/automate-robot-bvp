@@ -13,7 +13,7 @@ import rospy
 from geometry_msgs.msg import PoseStamped
 from object_msgs.msg import ObjectPose
 from sensor_msgs.msg import Image
-from find_object_2d.msg import ObjectsStamped, DetectionInfo
+# from find_object_2d.msg import ObjectsStamped, DetectionInfo
 
 from ebot_perception.srv import *
 
@@ -30,7 +30,7 @@ INPUT_WIDTH = 640
 INPUT_HEIGHT = 640
 SCORE_THRESHOLD = 0.2
 NMS_THRESHOLD = 0.4
-CONFIDENCE_THRESHOLD = 0.5
+CONFIDENCE_THRESHOLD = 0.25
 
 ROOT_DIR = os.getcwd()
 
