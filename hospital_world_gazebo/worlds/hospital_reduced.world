@@ -5450,14 +5450,14 @@
         <visual name='visual'>
           <geometry>
             <mesh>
-              <uri>/home/singh/ros_workspaces/auto_mate_ws/src/sahayak-bot/hospital_world_gazebo/models/medicine/meshes/model.obj</uri>
+              <uri>model://medicine/meshes/model.obj</uri>
             </mesh>
           </geometry>
         </visual>
         <collision name='collision_0'>
           <geometry>
             <mesh>
-              <uri>/home/singh/ros_workspaces/auto_mate_ws/src/sahayak-bot/hospital_world_gazebo/models/medicine/meshes/model.obj</uri>
+              <uri>model://medicine/meshes/model.obj</uri>
             </mesh>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -5540,7 +5540,7 @@
           <pose>0 0 0 0 -0 0</pose>
           <geometry>
             <mesh>
-              <uri>/home/singh/ros_workspaces/auto_mate_ws/src/sahayak-bot/ebot_gazebo/models/adhesive/meshes/adhesive.dae</uri>
+              <uri>model://adhesive/meshes/adhesive.dae</uri>
               <scale>1 1 1</scale>
             </mesh>
           </geometry>
