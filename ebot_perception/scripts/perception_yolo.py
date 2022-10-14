@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from inspect import FrameInfo
 import cv2
 import time
 import sys
@@ -154,6 +155,8 @@ class WorkpieceDetector :
         self.image_sub = rospy.Subscriber("/camera/color/image_raw2/compressed", CompressedImage, self.load_capture)
         self.object = ob_name
         self.bb_frame = None
+        self.frame = None
+        self.flag = 0
         
         
 
@@ -188,7 +191,12 @@ class WorkpieceDetector :
         #self.frame = self.bridge.imgmsg_to_cv2(data)
         self.capture = self.frame
         #return self.capture
-        #self.control_loop()
+
+        if self.flag == 0 and self.frame is not None:
+            self.control_loop()
+            self.flag = 1
+        else:
+            print("Control Loop ran once")
 
     def load_classes(self):
         self.class_list = []
@@ -253,15 +261,7 @@ class WorkpieceDetector :
         result[0:row, 0:col] = frame
         return result
 
-    def display_objects() :
-        
-        if self.bb_frame is not None :
-            cv2.imshow("Object Detection", self.bb_frame)
-            if cv2.waitKey(0) & 0xFF == ord('q'):
-                return
-
-        else:
-            rospy.loginfo("Bounding box frame is None")
+    
 
 
 
@@ -281,77 +281,86 @@ class WorkpieceDetector :
 
     def control_loop(self) :
         
-        self.net = self.build_model(is_cuda)
-        self.load_classes()
-        self.objectid = self.class_list.index(self.object)
-        #self.capture = self.load_capture()
-
-        #while self.capture is not None:
-        frame = self.capture
-        print("control_loop")
-        
-        if frame is None:
-            print("End of stream")
-            exit()
+        rospy.loginfo("Waiting 3 secs for frame")
+        #rospy.spin(3)
 
         return_val = False
-        try : 
-        
-            inputImage = self.format_yolov5(frame)
-            #resized = cv2.resize(inputImage , (640,640))
-            #blurred = cv2.blur(resized ,(10,10))
-            outs = self.detect(inputImage, self.net)
-            class_ids, confidences, boxes = self.wrap_detection(inputImage, outs[0])
-            #print("ID : " , class_ids)
-            #print("Boxes : ",boxes)
-            self.frame_count += 1
-            self.total_frames += 1
 
-            index = None
-            
-            self.bb_frame = frame.copy()
-
-            rospy.loginfo("Boxes : ", boxes)
-
-            for (classid, confidence, box) in zip(class_ids, confidences, boxes):
-                color = colors[int(classid) % len(colors)]
-                cv2.rectangle(frame, box, color, 2)
-                cv2.rectangle(frame, (box[0], box[1] - 20), (box[0] + box[2], box[1]), color, -1)
-                try :
-                    cv2.putText(frame, self.class_list[classid], (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0,0,0))
-                except :
-                    pass
-                   rospy.loginfo("Detected : ",box)
-
-            #else:
-                #rospy.loginfo("Object not found")
-
-
-            if self.frame_count >= 30:
-                self.end = time.time_ns()
-                self.fps = 1000000000 * frame_count / (self.end - self.start)
-                self.frame_count = 0
-                self.start = time.time_ns()
-            
-            if self.fps > 0:
-                self.fps_label = "FPS: %.2f" % self.fps
-                cv2.putText(frame, fps_label, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)           
-                       
-
-        except :
-            pass
-
-        #self.display_objects()
-
-        if self.bb_frame is not None :
-            cv2.imshow("Object Detection", self.bb_frame)
-            if cv2.waitKey(0) & 0xFF == ord('q'):
-                return
+        if self.frame is None :
+            print("Frame is None")
 
         else:
-            rospy.loginfo("Bounding box frame is None")
+            
+        
+            self.net = self.build_model(is_cuda)
+            self.load_classes()
+            self.objectid = self.class_list.index(self.object)
+            #self.capture = self.load_capture()
 
-        return return_val
+                #while self.capture is not None:
+            #frame = self.capture
+            cv2.imwrite("frame.png", self.frame)
+            print("control_loop")
+
+            if self.frame is None:
+                print("End of stream")
+                exit()
+
+                
+            try : 
+            
+                inputImage = self.format_yolov5(self.frame)
+                #resized = cv2.resize(inputImage , (640,640))
+                #blurred = cv2.blur(resized ,(10,10))
+                outs = self.detect(inputImage, self.net)
+                class_ids, confidences, boxes = self.wrap_detection(inputImage, outs[0])
+                #print("ID : " , class_ids)
+                #print("Boxes : ",boxes)
+                self.frame_count += 1
+                self.total_frames += 1
+
+                index = None
+
+                #self.bb_frame = frame.copy()
+                print(boxes)
+                #rospy.loginfo("Boxes : ", boxes)
+
+                for (classid, confidence, box) in zip(class_ids, confidences, boxes):
+                    color = colors[int(classid) % len(colors)]
+                    cv2.rectangle(self.frame, box, color, 2)
+                    cv2.rectangle(self.frame, (box[0], box[1] - 20), (box[0] + box[2], box[1]), color, -1)
+                    try :
+                        cv2.putText(self.frame, self.class_list[classid], (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0,0,0))
+                    except :
+                        pass
+                
+                return_val=True
+                #else:
+                #rospy.loginfo("Object not found")
+                if self.frame_count >= 30:
+                    self.end = time.time_ns()
+                    self.fps = 1000000000 * frame_count / (self.end - self.start)
+                    self.frame_count = 0
+                    self.start = time.time_ns()
+
+                if self.fps > 0:
+                    self.fps_label = "FPS: %.2f" % self.fps
+                    cv2.putText(self.frame, fps_label, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)           
+
+
+            except :
+                pass
+
+                #self.display_objects()
+
+            if self.frame is not None :
+                cv2.imshow("Object Detection", self.frame)
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
+            else:
+                rospy.loginfo("Bounding box frame is None")
+            
+            return return_val
 
 
 def yolo_perception_server() :
@@ -364,9 +373,9 @@ def find_object_cb(req) :
 
     rospy.loginfo("Perception request received")
     wd = WorkpieceDetector()
-    result = wd.control_loop()
+    #result = wd.control_loop()
 
-    return find_objectResponse(result)
+    return find_objectResponse(wd.return_val)
 
 
 
