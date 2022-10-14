@@ -2,14 +2,12 @@
 
 import rospy 
 import actionlib
-import time 
 from Utils import TaskStatusCode
 
 from ebot_handler.msg import NavAction, NavGoal, NavFeedback, NavResult, Task, PerceptionAction, PerceptionGoal, PerceptionResult, PerceptionFeedback, TaskStatus
 from ebot_handler.srv import arm_go_to_poseRequest, arm_go_to_pose
-from ebot_perception.srv import *
+from ebot_perception.srv import find_objectRequest, find_object
 from Utils import dropbox
-
 
 
 class NavActionClient:
@@ -107,14 +105,34 @@ class Ur5ManipulationClient:
         if self.resp == True:
             rospy.loginfo('{} PICKED'.format(ob_pose.name.upper()))
 
+class PerceptionClient:
+    '''A class to create and manage Arm Manipulation service client'''
 
+    def __init__(self):
+        rospy.loginfo('Waiting for Perception YOLO Service...')
+        rospy.wait_for_service('yolo_service')
+        rospy.loginfo('Perception YOLO Service Available')
+
+        # initialize arm manipulation service client
+        self.service_client = rospy.ServiceProxy('yolo_service', find_object)
+
+        # create empty request object
+        self.req = find_objectRequest()
+    
+    def detect_object(self, obj_name):
+        self.req.object_name = obj_name
+        self.resp = self.service_client(self.req)
+        if self.resp == True:
+            rospy.loginfo('{} DETECTED'.format(obj_name))
+        
+        return self.resp
 
 
 class TaskManager:
     '''A class that manages executes the task given to ebot by implementing a control loop and 
         communicating with the navigation and perception action server'''
 
-    def __init__(self, nav_client, manipulation_client):
+    def __init__(self, nav_client, manipulation_client, perception_client):
 
         # initialize subscriber for task_message topic to receive tasks for the ebot
         rospy.Subscriber("/task", Task, self.task_data_cb)
@@ -125,6 +143,8 @@ class TaskManager:
         self.nav_client = nav_client
         #self.perception_client = perception_client
         self.arm_pose = manipulation_client
+
+        self.perception_client = perception_client
 
         self.ebot_task = []
 
@@ -182,14 +202,8 @@ class TaskManager:
                 # go to detect pose before starting perception
                 self.arm_pose.go_to_pose('detect_pose')
 
-                
-                yolo_service_client()
-
-
-                # send the object to be picked to perception action client and wait for result from perception action server
-                #self.perception_client.object_recognition(self.ebot_task.ob_name)
-                #self.object_data = self.perception_client.object_result()
-                #self.object_status = self.object_data.ob_success
+                perception_result = self.perception_client.detect_object(self.ebot_task.ob_name)
+                self.room_try += 1
 
                 # if required object is detected, pick it up and break loop
                 #if self.object_status:
@@ -220,16 +234,6 @@ class TaskManager:
             self.publish_status(TaskStatusCode.SUCCESS.value)
             return
 
-def yolo_service_client() :
-    rospy.wait_for_service('yolo_service')
-    
-    try :
-        yolo_client = rospy.ServiceProxy('yolo_service', find_object)
-        result = yolo_client("GLASS")
-        return result.success
-    except rospy.ServiceException as e:
-        print("Service call failed :D")
-
 
 def main():
     # initialize ebot_handler client node
@@ -240,8 +244,10 @@ def main():
 
     # send arm to travel pose befor moving
     ebot_manipulation = Ur5ManipulationClient()
+
+    ebot_perception = PerceptionClient()
     
-    ebot_task_manager = TaskManager(ebot_navigation, ebot_manipulation)
+    ebot_task_manager = TaskManager(ebot_navigation, ebot_manipulation, ebot_perception)
     
     rospy.spin()
 
