@@ -31,7 +31,7 @@ INPUT_WIDTH = 640
 INPUT_HEIGHT = 640
 SCORE_THRESHOLD = 0.2
 NMS_THRESHOLD = 0.4
-CONFIDENCE_THRESHOLD = 0.25
+CONFIDENCE_THRESHOLD = 0.8
 
 ROOT_DIR = os.getcwd()
 
@@ -157,6 +157,7 @@ class WorkpieceDetector :
         self.bb_frame = None
         self.frame = None
         self.flag = 0
+        self.return_value = False
         
         
 
@@ -259,12 +260,7 @@ class WorkpieceDetector :
         _max = max(col, row)
         result = np.zeros((_max, _max, 3), np.uint8)
         result[0:row, 0:col] = frame
-        return result
-
-    
-
-
-
+        return result   
 
     def display_objects(self) :
         
@@ -277,14 +273,12 @@ class WorkpieceDetector :
             rospy.loginfo("Bounding box frame is None")
 
 
-
-
     def control_loop(self) :
         
         rospy.loginfo("Waiting 3 secs for frame")
         #rospy.spin(3)
 
-        return_val = False
+        
 
         if self.frame is None :
             print("Frame is None")
@@ -334,7 +328,7 @@ class WorkpieceDetector :
                     except :
                         pass
                 
-                return_val=True
+                self.return_value=True
                 #else:
                 #rospy.loginfo("Object not found")
                 if self.frame_count >= 30:
@@ -360,7 +354,7 @@ class WorkpieceDetector :
             else:
                 rospy.loginfo("Bounding box frame is None")
             
-            return return_val
+            return self.return_value
 
 
 def yolo_perception_server() :
@@ -375,7 +369,7 @@ def find_object_cb(req) :
     wd = WorkpieceDetector()
     #result = wd.control_loop()
 
-    return find_objectResponse(wd.return_val)
+    return find_objectResponse(wd.return_value)
 
 
 
