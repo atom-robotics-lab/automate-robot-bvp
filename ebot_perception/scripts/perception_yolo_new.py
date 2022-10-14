@@ -4,6 +4,7 @@ from inspect import FrameInfo
 import cv2
 import time
 import sys
+#from defer import return_value
 import numpy as np
 from cv_bridge import CvBridge, CvBridgeError
 import rospy
@@ -48,102 +49,11 @@ frame_count = 0
 total_frames = 0
 fps = -1
 
-"""class PerceptionActionServer: 
-    '''class to generate ObjectPose message and publish it on detection_info topic'''
-
-    def __init__(self, name): 
-        self.server_name = name
-        self.perception_server = SimpleActionServer(self.server_name, PerceptionAction, self.execute_cb, auto_start=False)
-        self._feedback = PerceptionFeedback()
-        self._result = PerceptionResult()
-
-        rospy.loginfo("Starting Perception Action Server")
-        self.perception_server.start()
-        rospy.loginfo("Perception Action Server STARTED")
-        
-    def execute_cb(self, goal): 
-        '''Execute callback function called when goal received by Perception Action Server
-            parameters: goal->PerceptionAction->goal sent by Perception Action Client
-            returns: nothing'''
-
-        rospy.loginfo("GOAL recieved")
-
-        # wait for find_object_2d to start publishing on /info topic
-        # Send false goal if timeout is reached
-        try:
-            rospy.wait_for_message('/info', DetectionInfo, rospy.Duration(3))
-        except ROSException:
-            rospy.logerr("WAITING FOR /info MESSAGE TIMEOUT!")
-            rospy.logwarn("Maybe find_object_2d has not started fully")
-            rospy.logwarn("SENDING FALSE SUCCESS TO CLIENT")
-            self._result.ob_success = False
-            #self._result.ob_data = ObjectPose()
-            self.perception_server.set_succeeded(self._result)
-            return
-
-        # initialize ObjectPerception object if message is received on /info to initialize image_sub and ob_sub
-        self.ob_perception = WorkpieceDetector(goal.ob_name)
-
-        # wait 3 seconds to allow subscriber to make connections
-        rospy.sleep(3)
-
-        # get object data published from find_object_2d 
-        ob_data = self.ob_perception.control_loop()
-
-        # if no object is detected return False success to client
-        if ob_data is None:
-            rospy.logerr("NO OBJECT DETECTED BY FIND_OBJECT_2D")
-            self._result.ob_success = False
-            self._result.ob_data = ObjectPose()
-            self.perception_server.set_succeeded(self._result)
-            return
-
-        # display image with bounding box on objects
-        self.ob_perception.display_objects()
-
-        ob_detected = 0 
-
-        # get the pose of the object to be picked
-
-        
-        
-        rospy.loginfo("[RESULT]: {} IDENTIFIED".format(goal.ob_name.upper()))
-        #if ob['name'] == goal.ob_name:
-        self.msg = ObjectPose()
-        self.msg.name = goal.ob_name 
-        self.msg.pose = PoseStamped()
-        self.msg.pose.pose.position.x = 0 #ob['trans'][0] 
-        self.msg.pose.pose.position.y = 0 #ob['trans'][1]
-        self.msg.pose.pose.position.z = 0 #ob['trans'][2]
-        self.msg.pose.pose.orientation.x = 0 #ob['rot'][0] 
-        self.msg.pose.pose.orientation.y = 0 #ob['rot'][1]
-        self.msg.pose.pose.orientation.z = 0 #ob['rot'][2]
-        self.msg.pose.pose.orientation.w = 0 #ob['rot'][3]
-        ob_detected = 1 
-
-            #else:
-                #self._feedback.ob_detected = ob['name']
-                #self.perception_server.publish_feedback(self._feedback)
-
-        # return True success and ObjectPose message of the object to be picked if it was detected
-        # else return false success and empty pose
-        if ob_detected:
-            self._result.ob_success = True
-            self._result.ob_data = self.msg
-            self.perception_server.set_succeeded(self._result)
-            return
-
-        else:
-            self._result.ob_success = False
-            #self._result.ob_data = ObjectPose()
-            self.perception_server.set_succeeded(self._result)
-            return
-        """
 
 
 class WorkpieceDetector :
 
-    def __init__(self, object_name="MEDICINE"):
+    def __init__(self, ob_name="MEDICINE"):
         
 
         self.frame_count = 0
@@ -152,11 +62,12 @@ class WorkpieceDetector :
         self.start = time.time_ns()
         #self.frame = frame
         self.bridge = CvBridge()
-        self.object = object_name
+        self.object = ob_name
         self.bb_frame = None
         self.frame = None
         self.flag = 0
         self.return_value = False
+        self.objectid = None
         self.image_sub = rospy.Subscriber("/camera/color/image_raw2/compressed", CompressedImage, self.load_capture)
         
         
@@ -300,51 +211,61 @@ class WorkpieceDetector :
                 exit()
 
                 
-            try : 
             
-                inputImage = self.format_yolov5(self.frame)
-                #resized = cv2.resize(inputImage , (640,640))
-                #blurred = cv2.blur(resized ,(10,10))
-                outs = self.detect(inputImage, self.net)
-                class_ids, confidences, boxes = self.wrap_detection(inputImage, outs[0])
-                #print("ID : " , class_ids)
-                #print("Boxes : ",boxes)
-                self.frame_count += 1
-                self.total_frames += 1
-
-                index = None
-
-                #self.bb_frame = frame.copy()
-                print(boxes)
-                #rospy.loginfo("Boxes : ", boxes)
-
-                for (classid, confidence, box) in zip(class_ids, confidences, boxes):
-                    color = colors[int(classid) % len(colors)]
-                    cv2.rectangle(self.frame, box, color, 2)
-                    cv2.rectangle(self.frame, (box[0], box[1] - 20), (box[0] + box[2], box[1]), color, -1)
-                    try :
-                        cv2.putText(self.frame, self.class_list[classid], (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0,0,0))
-                    except :
-                        pass
+            
+            inputImage = self.format_yolov5(self.frame)
+            #resized = cv2.resize(inputImage , (640,640))
+            #blurred = cv2.blur(resized ,(10,10))
+            outs = self.detect(inputImage, self.net)
+            class_ids, confidences, boxes = self.wrap_detection(inputImage, outs[0])
+            #print("ID : " , class_ids)
+            #print("Boxes : ",boxes)
+            self.frame_count += 1
+            self.total_frames += 1
+            self.objectid = self.class_list.index(self.object)
+                            
+            print("Detected boxes : ", boxes)
+            print("Detected ids : ", class_ids)
+            if self.objectid in class_ids :
+                print("Item {} found".format(self.object))
+                index = class_ids.index(self.objectid)
+                classid, confidence, box = class_ids[index], confidences[index], boxes[index]
                 
-                self.return_value=True
-                #else:
-                #rospy.loginfo("Object not found")
-                if self.frame_count >= 30:
-                    self.end = time.time_ns()
-                    self.fps = 1000000000 * frame_count / (self.end - self.start)
-                    self.frame_count = 0
-                    self.start = time.time_ns()
-
-                if self.fps > 0:
-                    self.fps_label = "FPS: %.2f" % self.fps
-                    cv2.putText(self.frame, fps_label, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)           
-
-
-            except :
-                pass
-
-                #self.display_objects()
+                cv2.rectangle(self.frame, box, colors[index%len(colors)], 2)
+                cv2.rectangle(self.frame, (box[0], box[1] - 20), (box[0] + box[2], box[1]), colors[index%len(colors)], -1)
+                try :
+                    cv2.putText(self.frame, self.class_list[classid], (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0,0,0))
+                except :
+                    pass
+                print(box)
+                
+                self.return_value = True
+            else:
+                print("Item {} not found".format(self.object))
+                self.return_value = False
+            
+            '''or (classid, confidence, box) in zip(class_ids, confidences, boxes):
+                color = colors[int(classid) % len(colors)]
+                cv2.rectangle(self.frame, box, color, 2)
+                cv2.rectangle(self.frame, (box[0], box[1] - 20), (box[0] + box[2], box[1]), color, -1)
+                try :
+                    cv2.putText(self.frame, self.class_list[classid], (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0,0,0))
+                except :
+                    pass'''
+            
+            #self.return_value=True
+            #else:
+            #rospy.loginfo("Object not found")
+            if self.frame_count >= 30:
+                self.end = time.time_ns()
+                self.fps = 1000000000 * frame_count / (self.end - self.start)
+                self.frame_count = 0
+                self.start = time.time_ns()
+            if self.fps > 0:
+                self.fps_label = "FPS: %.2f" % self.fps
+                cv2.putText(self.frame, fps_label, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)           
+        
+            #self.display_objects()
 
             if self.frame is not None :
                 cv2.imshow("Object Detection", self.frame)
@@ -365,7 +286,7 @@ def yolo_perception_server() :
 def find_object_cb(req) :
 
     rospy.loginfo("Perception request received")
-    wd = WorkpieceDetector()
+    wd = WorkpieceDetector(req.object_name)
     #result = wd.control_loop()
 
     return find_objectResponse(wd.return_value)
