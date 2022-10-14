@@ -13,7 +13,7 @@ import rospy
 from geometry_msgs.msg import PoseStamped
 from object_msgs.msg import ObjectPose
 from sensor_msgs.msg import Image
-# from find_object_2d.msg import ObjectsStamped, DetectionInfo
+from find_object_2d.msg import ObjectsStamped, DetectionInfo
 
 from ebot_perception.srv import *
 
@@ -30,7 +30,7 @@ INPUT_WIDTH = 640
 INPUT_HEIGHT = 640
 SCORE_THRESHOLD = 0.2
 NMS_THRESHOLD = 0.4
-CONFIDENCE_THRESHOLD = 0.25
+CONFIDENCE_THRESHOLD = 0.5
 
 ROOT_DIR = os.getcwd()
 
@@ -311,20 +311,18 @@ class WorkpieceDetector :
             
             self.bb_frame = frame.copy()
 
-            rospy.loginfo("Boxes : ", boxes)
-
-            for (classid, confidence, box) in zip(class_ids, confidences, boxes):
+            if self.objectid in class_ids :
+                index = class_ids.index(self.objectid)
+                classid, confidence, box = class_ids[index], confidences[index], boxes[index]
                 color = colors[int(classid) % len(colors)]
-                cv2.rectangle(frame, box, color, 2)
-                cv2.rectangle(frame, (box[0], box[1] - 20), (box[0] + box[2], box[1]), color, -1)
+                cv2.rectangle(self.bb_frame , box, color, 2)
+                cv2.rectangle(self.bb_frame , (box[0], box[1] - 20), (box[0] + box[2], box[1]), color, -1)
                 try :
-                    cv2.putText(frame, self.class_list[classid], (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0,0,0))
+                    cv2.putText(self.bb_frame , self.class_list[classid], (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0,0,0))
                 except :
                     pass
-                   rospy.loginfo("Detected : ",box)
-
-            #else:
-                #rospy.loginfo("Object not found")
+                return_val = True
+                rospy.loginfo("Detected : ",box)
 
 
             if self.frame_count >= 30:
@@ -341,15 +339,7 @@ class WorkpieceDetector :
         except :
             pass
 
-        #self.display_objects()
-
-        if self.bb_frame is not None :
-            cv2.imshow("Object Detection", self.bb_frame)
-            if cv2.waitKey(0) & 0xFF == ord('q'):
-                return
-
-        else:
-            rospy.loginfo("Bounding box frame is None")
+        self.display_objects()
 
         return return_val
 
@@ -373,9 +363,10 @@ def find_object_cb(req) :
 #print("Total frames: " + str(total_frames))
 
 if __name__ == "__main__" :
-    yolo_perception_server()
+    wd = WorkpieceDetector()
+    wd.control_loop()
 
-    yolo_perception_server()
+
 
     
     
