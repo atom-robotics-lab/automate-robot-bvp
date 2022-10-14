@@ -31,7 +31,7 @@ INPUT_WIDTH = 640
 INPUT_HEIGHT = 640
 SCORE_THRESHOLD = 0.2
 NMS_THRESHOLD = 0.4
-CONFIDENCE_THRESHOLD = 0.8
+CONFIDENCE_THRESHOLD = 0.25
 
 ROOT_DIR = os.getcwd()
 
@@ -152,17 +152,17 @@ class WorkpieceDetector :
         self.start = time.time_ns()
         #self.frame = frame
         self.bridge = CvBridge()
-        self.image_sub = rospy.Subscriber("/camera/color/image_raw2/compressed", CompressedImage, self.load_capture)
         self.object = ob_name
         self.bb_frame = None
         self.frame = None
         self.flag = 0
         self.return_value = False
+        self.image_sub = rospy.Subscriber("/camera/color/image_raw2/compressed", CompressedImage, self.load_capture)
         
         
 
     def build_model(self , is_cuda):
-        self.net = cv2.dnn.readNet("src/automate-robot-bvp/ebot_perception/scripts/utils/automate.onnx")
+        self.net = cv2.dnn.readNet("src/automate-robot-bvp/ebot_perception/scripts/utils/automate_new.onnx")
         if is_cuda:
             print("Attempty to use CUDA")
             self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
@@ -189,15 +189,14 @@ class WorkpieceDetector :
         np_arr = np.fromstring(data.data, np.uint8)
         image_np = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
         self.frame = image_np
-        #self.frame = self.bridge.imgmsg_to_cv2(data)
-        self.capture = self.frame
-        #return self.capture
+        self.capture = self.frame        
 
         if self.flag == 0 and self.frame is not None:
             self.control_loop()
             self.flag = 1
         else:
             print("Control Loop ran once")
+
 
     def load_classes(self):
         self.class_list = []
