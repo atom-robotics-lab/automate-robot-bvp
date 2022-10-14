@@ -7,7 +7,7 @@ INPUT_WIDTH = 640
 INPUT_HEIGHT = 640
 SCORE_THRESHOLD = 0.2
 NMS_THRESHOLD = 0.4
-CONFIDENCE_THRESHOLD = 0.4
+CONFIDENCE_THRESHOLD = 0.25
 
 
 colors = [(255, 255, 0), (0, 255, 0), (0, 255, 255), (255, 0, 0)]
@@ -32,7 +32,7 @@ class WorkpieceDetector :
         self.frame = frame
 
     def build_model(self , is_cuda):
-        self.net = cv2.dnn.readNet("automate.onnx")
+        self.net = cv2.dnn.readNet("utils/automate.onnx")
         if is_cuda:
             print("Attempty to use CUDA")
             self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
@@ -59,7 +59,7 @@ class WorkpieceDetector :
 
     def load_classes(self):
         self.class_list = []
-        with open("classes.txt", "r") as f:
+        with open("utils/classes.txt", "r") as f:
             self.class_list = [cname.strip() for cname in f.readlines()]
         return self.class_list
 
@@ -80,7 +80,7 @@ class WorkpieceDetector :
         for r in range(rows):
             row = output_data[r]
             confidence = row[4]
-            if confidence >= 0.4:
+            if confidence >= CONFIDENCE_THRESHOLD :
 
                 classes_scores = row[5:]
                 _, _, _, max_indx = cv2.minMaxLoc(classes_scores)
@@ -166,6 +166,6 @@ class WorkpieceDetector :
 #print("Total frames: " + str(total_frames))
 
 if __name__ == "__main__" :
-    img = cv2.imread('sample2.png')
+    img = cv2.imread('service1.png')
     wd = WorkpieceDetector(img)
     wd.control_loop()

@@ -16,6 +16,10 @@ TrajectoryPlannerROS:
   vth_samples: 40
   controller_frequency: 5.0
 
+  xy_goal_tolerance: 0.1
+  yaw_goal_tolerance: 0.17
+  latch_xy_goal_tolerance: false
+
 # Trajectory Scoring Parameters
   path_distance_bias: 53.0
   goal_distance_bias: 20.0
