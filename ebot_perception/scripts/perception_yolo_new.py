@@ -226,17 +226,13 @@ class WorkpieceDetector :
                             
             print("Detected boxes : ", boxes)
             print("Detected ids : ", class_ids)
+            
             if self.objectid in class_ids :
                 print("Item {} found".format(self.object))
                 index = class_ids.index(self.objectid)
-                classid, confidence, box = class_ids[index], confidences[index], boxes[index]
+                box = boxes[index]
                 
-                cv2.rectangle(self.frame, box, colors[index%len(colors)], 2)
-                cv2.rectangle(self.frame, (box[0], box[1] - 20), (box[0] + box[2], box[1]), colors[index%len(colors)], -1)
-                try :
-                    cv2.putText(self.frame, self.class_list[classid], (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0,0,0))
-                except :
-                    pass
+                
                 print(box)
                 
                 self.return_value = True
@@ -244,14 +240,14 @@ class WorkpieceDetector :
                 print("Item {} not found".format(self.object))
                 self.return_value = False
             
-            '''or (classid, confidence, box) in zip(class_ids, confidences, boxes):
+            for (classid, confidence, box) in zip(class_ids, confidences, boxes):
                 color = colors[int(classid) % len(colors)]
                 cv2.rectangle(self.frame, box, color, 2)
                 cv2.rectangle(self.frame, (box[0], box[1] - 20), (box[0] + box[2], box[1]), color, -1)
                 try :
                     cv2.putText(self.frame, self.class_list[classid], (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, .5, (0,0,0))
                 except :
-                    pass'''
+                    pass
             
             #self.return_value=True
             #else:
