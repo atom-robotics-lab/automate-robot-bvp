@@ -39,10 +39,10 @@
         <joint name="wrist_3_joint" value="3.0895"/>
     </group_state>
     <group_state name="detect_pose" group="ur5_arm">
-        <joint name="elbow_joint" value="-1.8918"/>
-        <joint name="shoulder_lift_joint" value="-0.6596"/>
+        <joint name="elbow_joint" value="-2.4472"/>
+        <joint name="shoulder_lift_joint" value="0.1736"/>
         <joint name="shoulder_pan_joint" value="-1.57"/>
-        <joint name="wrist_1_joint" value="-1.0761"/>
+        <joint name="wrist_1_joint" value="-0.9373"/>
         <joint name="wrist_2_joint" value="1.57"/>
         <joint name="wrist_3_joint" value="3.0895"/>
     </group_state>

@@ -8,7 +8,7 @@ import io
 
 # import actionlib & actionlib_msgs to create a SimpleActionClient object 
 from actionlib import SimpleActionClient, SimpleGoalState, SimpleActionServer
-from actionlib_msgs.msg import GoalStatus 
+from actionlib_msgs.msg import GoalStatus
 
 from ebot_handler.msg import NavAction, NavResult, NavFeedback
 
@@ -79,10 +79,6 @@ class MoveBase:
         # wait for action server to start
         self.action_client.wait_for_server()
 
-        # get the initial waypoint an call move_to() for it
-        initial_waypoint = self.waypoint_supplier.get_waypoint()
-        self.move_to(initial_waypoint)
-
 
     ''' move_to():
         method that prepares the goal msg and sends it
@@ -103,6 +99,21 @@ class MoveBase:
 
         # send the message to Action Server in move_base node
         self.action_client.send_goal(goal_msg)
+        # print("WAITING FOR GOAL RESUTL")
+        # wait = self.action_client.wait_for_result()
+        # print("RESULT AA GAYAAA")
+        # print(wait)
+        # if not wait:
+        #     rospy.logerr("Action server not available!")
+        #     rospy.signal_shutdown("Action server not available!")
+        # else:
+        #     print(self.action_client.get_result())
+        #     # Result of executing the action
+            
+        #     return self.action_client.get_result() 
+
+        # if self.action_client.get_state() == SimpleGoalState.DONE:
+        #     return True
 
 
 ''' odom_callback():
@@ -134,41 +145,43 @@ class NavigationAction:
         rate = rospy.Rate(1)
 
         move_base = MoveBase(goal.room_name)
-        total_waypoints = move_base.waypoint_supplier.get_total_waypoints()
+        #total_waypoints = move_base.waypoint_supplier.get_total_waypoints()
+        # get the initial waypoint an call move_to() for it
+        initial_waypoint = move_base.waypoint_supplier.get_waypoint()
+        move_base.move_to(initial_waypoint)
 
-        dist_precision = 0.6
-        theta_precision = 0.35
+        dist_precision = 0.2
+        theta_precision = 0.2
 
         try:
             while True:
                 global pose
-
                 # get the curr waypoint being approached
                 curr_waypoint = move_base.waypoint_supplier.get_curr_goal()
                 yaw_final = euler_from_quaternion([curr_waypoint.orientation.x, curr_waypoint.orientation.y, curr_waypoint.orientation.z, curr_waypoint.orientation.w])[2]
-
                 # calculate error in goal and curr position
                 position_error = np.sqrt(pow(curr_waypoint.position.y - pose[1], 2) + pow(curr_waypoint.position.x - pose[0], 2))
-                theta_error = np.abs(yaw_final - pose[2])
-
+                theta_error = np.abs(yaw_final) - np.abs(pose[2])
+                theta_error = np.abs(theta_error)
                 # define and publish the action feedback
                 self._feedback.position_error = position_error
                 self._feedback.theta_error = theta_error 
                 self.nav_server.publish_feedback(self._feedback)
-
                 # check if position_error & theta_error is less than desired precision, then move bot to next goal
                 if position_error < dist_precision:
                     if theta_error < theta_precision:
+                        self._result.Nav_success = True
+                        self._result.room_reached = goal.room_name
+                        self.nav_server.set_succeeded(self._result)
+                        return
                         # break loop when room reached
-                        if move_base.waypoint_supplier.get_curr() == total_waypoints:
-                            self._result.Nav_success = True
-                            self._result.room_reached = goal.room_name
-                            self.nav_server.set_succeeded(self._result)
-                            return
-
-                        print(move_base.waypoint_supplier.get_curr())
-                        move_base.move_to(move_base.waypoint_supplier.get_waypoint())
-
+                        # if move_base.waypoint_supplier.get_curr() == total_waypoints:
+                        #     self._result.Nav_success = True
+                        #     self._result.room_reached = goal.room_name
+                        #     self.nav_server.set_succeeded(self._result)
+                        #     return
+                        # print(move_base.waypoint_supplier.get_curr())
+                        # move_base.move_to(move_base.waypoint_supplier.get_waypoint())
                 rate.sleep()
         except KeyError:
             rospy.logerr("Object was Not Found in the room")

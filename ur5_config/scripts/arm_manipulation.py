@@ -43,10 +43,12 @@ class Ur5Moveit:
 
 
     def go_to_pose(self, arg_pose):
+        current_robot_state = self._robot.get_current_state()
 
-        pose_values = self._group.get_current_pose().pose
-
+        self._group.set_start_state(current_robot_state)
         self._group.set_pose_target(arg_pose)
+        plan = self._group.plan()
+        
         flag_plan = self._group.go(wait=True)  # wait=False for Async Move
 
         pose_values = self._group.get_current_pose().pose
@@ -89,10 +91,12 @@ class gripper:
     def go_to_predefined_pose(self, arg_pose_name):
         self._group.set_named_target(arg_pose_name)
         plan = self._group.plan()
-        goal = moveit_msgs.msg.ExecuteTrajectoryGoal()
-        goal.trajectory = plan
-        self._exectute_trajectory_client.send_goal(goal)
-        self._exectute_trajectory_client.wait_for_result()
+        # goal = moveit_msgs.msg.ExecuteTrajectoryGoal()
+        # goal.trajectory = plan
+        # self._exectute_trajectory_client.send_goal(goal)
+        # self._exectute_trajectory_client.wait_for_result()
+        self._group.go(wait=True)
+
 
 
 class WorldObject:
