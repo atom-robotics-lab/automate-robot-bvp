@@ -151,7 +151,7 @@ class NavigationAction:
         move_base.move_to(initial_waypoint)
 
         dist_precision = 0.2
-        theta_precision = 0.15
+        theta_precision = 0.2
 
         try:
             while True:

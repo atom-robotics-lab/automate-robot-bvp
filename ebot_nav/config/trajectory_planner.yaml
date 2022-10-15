@@ -17,7 +17,7 @@ TrajectoryPlannerROS:
   controller_frequency: 5.0
 
   xy_goal_tolerance: 0.1
-  yaw_goal_tolerance: 0.1
+  yaw_goal_tolerance: 0.18
   latch_xy_goal_tolerance: false
 
 # Trajectory Scoring Parameters

@@ -53,25 +53,30 @@ fps = -1
 
 class WorkpieceDetector :
 
-    def __init__(self, ob_name="MEDICINE"):
-        
-
+    def __init__(self):
         self.frame_count = 0
         self.total_frames = 0
         self.fps = -1
         self.start = time.time_ns()
         #self.frame = frame
         self.bridge = CvBridge()
-        self.object = ob_name
+        #self.object = ob_name
         self.bb_frame = None
         self.frame = None
         self.flag = 0
         self.return_value = False
         self.objectid = None
         self.image_sub = rospy.Subscriber("/camera/color/image_raw2/compressed", CompressedImage, self.load_capture)
+        self.yolo_service = rospy.Service('yolo_service', find_object, self.find_object_cb)
         
-        
+    def find_object_cb(self, req) :
+       self.object = req.object_name
+       rospy.loginfo("Perception request received for {}".format(self.object))
+       result = self.control_loop()
+       print("YOLO Result: {}".format(result))
 
+       return find_objectResponse(self.return_value)
+    
     def build_model(self , is_cuda):
         self.net = cv2.dnn.readNet("src/automate-robot-bvp/ebot_perception/scripts/utils/automate_new.onnx")
         if is_cuda:
@@ -83,8 +88,6 @@ class WorkpieceDetector :
             self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
             self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
         return self.net
-
-
 
     def detect(self,image,net ):
         self.net = net
@@ -102,11 +105,11 @@ class WorkpieceDetector :
         self.frame = image_np
         self.capture = self.frame        
 
-        if self.flag == 0 and self.frame is not None:
-            self.control_loop()
-            self.flag = 1
-        else:
-            print("Control Loop ran once")
+        # if self.flag == 0 and self.frame is not None:
+        #     #self.control_loop()
+        #     self.flag = 1
+        # else:
+        #     print("Control Loop ran once")
 
 
     def load_classes(self):
@@ -273,28 +276,34 @@ class WorkpieceDetector :
             return self.return_value
 
 
-def yolo_perception_server() :
-    rospy.init_node("perception_yolo")
-    s = rospy.Service('yolo_service', find_object, find_object_cb)
-    rospy.loginfo("yolo service active")
-    rospy.spin()
+# def yolo_perception_server() :
+#     rospy.init_node("perception_yolo")
+#     s = rospy.Service('yolo_service', find_object, find_object_cb)
+#     rospy.loginfo("yolo service active")
+#     rospy.spin()
 
-def find_object_cb(req) :
+# def find_object_cb(req) :
 
-    rospy.loginfo("Perception request received")
-    wd = WorkpieceDetector(req.object_name)
-    #result = wd.control_loop()
+#     rospy.loginfo("Perception request received")
+#     wd = WorkpieceDetector(req.object_name)
+#     result = wd.control_loop()
+#     print("YOLO Result: {}".format(result))
 
-    return find_objectResponse(wd.return_value)
+#     return find_objectResponse(wd.return_value)
 
 
 
 #print("Total frames: " + str(total_frames))
 
 if __name__ == "__main__" :
-    yolo_perception_server()
+    rospy.init_node("perception_yolo")
 
-    yolo_perception_server()
+    wd = WorkpieceDetector()
+    rospy.spin()
+
+    # yolo_perception_server()
+
+    # yolo_perception_server()
 
     
     
