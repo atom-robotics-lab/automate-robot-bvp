@@ -159,6 +159,7 @@ class WorkpieceDetector :
             self.fps_label = "FPS: %.2f" % self.fps
             cv2.putText(frame, fps_label, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
         cv2.imshow("output", frame)
+        cv2.imwrite("output.png", frame)
         if cv2.waitKey(0) > -1:
             print("finished by user")
             exit()
