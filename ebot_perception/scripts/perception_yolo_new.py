@@ -78,7 +78,7 @@ class WorkpieceDetector :
        return find_objectResponse(self.return_value)
     
     def build_model(self , is_cuda):
-        self.net = cv2.dnn.readNet("src/automate-robot-bvp/ebot_perception/scripts/utils/automate_final.onnx")
+        self.net = cv2.dnn.readNet("src/automate-robot-bvp/ebot_perception/scripts/utils/auto_final.onnx")
         if is_cuda:
             print("Attempty to use CUDA")
             self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
@@ -307,5 +307,4 @@ if __name__ == "__main__" :
 
     
     
-
 

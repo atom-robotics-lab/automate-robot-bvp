@@ -4,7 +4,7 @@ import sys
 import numpy as np
 
 def build_model(is_cuda):
-    net = cv2.dnn.readNet("automate.onnx")
+    net = cv2.dnn.readNet("utils/auto_final.onnx")
     if is_cuda:
         print("Attempty to use CUDA")
         net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
@@ -33,7 +33,7 @@ def load_capture():
 
 def load_classes():
     class_list = []
-    with open("classes.txt", "r") as f:
+    with open("utils/classes.txt", "r") as f:
         class_list = [cname.strip() for cname in f.readlines()]
     return class_list
 
