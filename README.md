@@ -51,7 +51,46 @@ This step will take time as it installs several models from [Ignition Fuel](http
 pip install opencv-contrib-python
 ```
 
+### Launching the Simulation
+ * Launch the hospital simulation world:
+  ```bash
+  roslaunch aws_robomaker_hospital_world hospital.launch
+  ```
+ ![hospital_simulation_world](https://user-images.githubusercontent.com/23265149/209863291-0fbcd979-58d8-4dc2-b832-a7ffd0f48f0b.png)
 
+ 
+ * Launch robot_bringup launch file which launches moveit and rviz for visualisation:
+ ```bash
+ roslaunch ebot_perception ebot_bringup.launch
+ ```
+ 
+ * You can also run `rqt_image_view` and select the respective topic to view camera images:
+ ```bash
+ rosrun rqt_image_view rqt_image_view
+ ```
+ 
+ * Launch ebot navigation stack:
+ ```bash
+ roslaunch ebot_nav navigation.launch
+```
+ 
+  * Launch `ebot_handler` launch file:
+  ```bash
+  roslaunch ebot_handler ebot_handler.launch
+  ```
+ 
+ * Activate your yolo python virtual environment. Navigate to your workspace in the terminal before running this. Run perception yolo script:
+ ```bash
+ cd catkin_ws && rosrun ebot_perception perception_yolo_new.py
+ ```
+ 
+ * Now we can go on with publishing a task for the robot:
+ ```bash
+ rostopic pub /task ebot_handler/Task "pick_room: 'Store_Room'
+ob_name: 'GLASS'
+drop_room: 'Reception'"
+```
+ 
 
 <!-- > **Note:** Since we have shifted from simple drive download to more sophisticated approach of sharing packages, there are some limitation in the normal approach, mainly the size of upload. However, this is solved by using Githhub's LFS (Large File System). And hence, you might face a little delay (depending upon your network) in downloading the files tracked by LSF.  -->
 
