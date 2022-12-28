@@ -3,14 +3,14 @@
     <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find ebot_description)/urdf/ebot_ur5.xacro'"/>
 
 
-    <arg name="x" default="0"/>
-    <arg name="y" default="0"/>
+    <arg name="x" default="7.55443016605"/>
+    <arg name="y" default="15.44048223299"/>
     <arg name="z" default="0"/>
-        
+    <arg name="Y" default="0" />
 
         <!-- Spawn the robot model -->
     <node name="mybot_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" 
-        args="-urdf -param robot_description -model ebot -x $(arg x) -y $(arg y) -z $(arg z)" />
+        args="-urdf -param robot_description -model ebot -x $(arg x) -y $(arg y) -z $(arg z) -Y $(arg Y)" />
   
     
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
